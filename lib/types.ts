@@ -1,4 +1,4 @@
-// Creating shared types for automation system
+// Shared types for the automation system
 export type ButtonAction = "web_url" | "postback"
 
 export interface ProButton {
@@ -7,6 +7,39 @@ export interface ProButton {
   title: string
   url?: string
   payload?: string
+}
+
+export interface QuickReplyOption {
+  id: string
+  title: string
+  payload?: string
+}
+
+export interface MediaResponse {
+  type: "image" | "video" | "audio"
+  url: string
+}
+
+// The JSON stored in automations.response_content
+export interface ResponseContent {
+  message?: string
+  card?: {
+    title: string
+    subtitle?: string
+    image_url?: string
+    buttons: Omit<ProButton, "id">[]
+  }
+  media?: MediaResponse
+  quick_replies?: { title: string; payload?: string }[]
+  check_follow?: boolean
+  // Comment automation options
+  reply_mode?: "both" | "dm_only" | "public_only"
+  public_replies?: string[]
+  include_replies?: boolean
+  // Delivery options
+  delay_seconds?: number
+  typing_indicator?: boolean
+  mark_seen?: boolean
 }
 
 export interface MediaItem {
@@ -29,10 +62,10 @@ export interface MediaSelection {
 export interface Automation {
   id: string
   name: string
-  trigger_source: 'comment' | 'dm' | 'story'  // NEW: Where the automation triggers
+  trigger_source: "comment" | "dm" | "story"
   trigger_value: string
-  trigger_type: 'keyword' | 'postback' | 'reply_all'  // Simplified types
-  response_content: any
+  trigger_type: "keyword" | "postback" | "reply_all" | "mention" | "reaction" | "reply"
+  response_content: ResponseContent
   is_active: boolean
   created_at: string
   specific_media_id?: string | null

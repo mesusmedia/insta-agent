@@ -125,3 +125,47 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json({ error: "Failed to update" }, { status: 500 })
   }
 }
+
+export async function PATCH(request: NextRequest) {
+  try {
+    const { id, is_active, action } = await request.json()
+    if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 })
+
+    const supabase = await getSupabaseServerClient()
+
+    if (action === "duplicate") {
+      const { data: original, error: fetchError } = await supabase
+        .from("automations")
+        .select("*")
+        .eq("id", id)
+        .single()
+      if (fetchError || !original) return NextResponse.json({ error: "Not found" }, { status: 404 })
+
+      const { id: _id, created_at, updated_at, ...rest } = original
+      const { data, error } = await supabase
+        .from("automations")
+        .insert({ ...rest, name: `${original.name} (copy)`, is_active: false })
+        .select()
+        .single()
+      if (error) throw error
+      return NextResponse.json(data)
+    }
+
+    if (typeof is_active !== "boolean") {
+      return NextResponse.json({ error: "Missing is_active" }, { status: 400 })
+    }
+
+    const { data, error } = await supabase
+      .from("automations")
+      .update({ is_active })
+      .eq("id", id)
+      .select()
+      .single()
+
+    if (error) throw error
+    return NextResponse.json(data)
+  } catch (error) {
+    console.error("[v0] Automations PATCH error:", error)
+    return NextResponse.json({ error: "Failed to update" }, { status: 500 })
+  }
+}

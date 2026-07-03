@@ -121,7 +121,7 @@ export function ChatWindow({ conversationId, recipientId, recipientName, userId,
                             <ChevronLeft className="w-6 h-6" />
                         </Button>
                     )}
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-500 to-pink-500 shrink-0" />
+                    <div className="w-8 h-8 rounded-full bg-white/10 border border-white/15 shrink-0" />
                     <div className="min-w-0">
                         <h3 className="font-bold text-white text-sm truncate">@{recipientName}</h3>
                         <span className="hidden md:flex items-center gap-1.5 text-[10px] text-green-400">
@@ -141,7 +141,7 @@ export function ChatWindow({ conversationId, recipientId, recipientName, userId,
             <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4 md:space-y-6">
                 {loading ? (
                     <div className="flex justify-center py-10">
-                        <Loader2 className="w-8 h-8 text-purple-500 animate-spin" />
+                        <Loader2 className="w-8 h-8 text-white/20 animate-spin" />
                     </div>
                 ) : (
                     messages.map((msg) => {
@@ -151,13 +151,13 @@ export function ChatWindow({ conversationId, recipientId, recipientName, userId,
                                 <div className={cn(
                                     "max-w-[85%] md:max-w-[70%] rounded-2xl px-4 py-3 text-sm shadow-sm break-words",
                                     isMe
-                                        ? "bg-purple-600 text-white rounded-br-none"
+                                        ? "bg-[#ffe14d] text-black rounded-br-none"
                                         : "bg-white/10 text-white rounded-bl-none border border-white/5"
                                 )}>
                                     {msg.content}
                                     <div className={cn(
                                         "text-[10px] mt-1 opacity-70",
-                                        isMe ? "text-purple-200 text-right" : "text-gray-400"
+                                        isMe ? "text-black/50 text-right" : "text-neutral-500"
                                     )}>
                                         {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                     </div>
@@ -193,7 +193,7 @@ export function ChatWindow({ conversationId, recipientId, recipientName, userId,
 
             {/* Input Area */}
             <div className="p-3 md:p-4 border-t border-white/5 bg-black/40 shrink-0">
-                <div className="flex items-center gap-2 bg-white/5 rounded-xl border border-white/10 p-1.5 focus-within:border-purple-500/50 focus-within:ring-1 focus-within:ring-purple-500/20 transition-all">
+                <div className="flex items-center gap-2 bg-white/5 rounded-xl border border-white/10 p-1.5 focus-within:border-[#ffe14d]/50 transition-all">
                     <Button
                         size="icon"
                         variant="ghost"
@@ -219,7 +219,7 @@ export function ChatWindow({ conversationId, recipientId, recipientName, userId,
                         onClick={() => handleSendMessage()}
                         disabled={sending || !inputText.trim()}
                         size="icon"
-                        className="h-9 w-9 bg-purple-600 hover:bg-purple-700 text-white rounded-lg shadow-lg shadow-purple-500/20 disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+                        className="h-9 w-9 bg-[#ffe14d] hover:brightness-95 text-black rounded-lg disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
                     >
                         {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                     </Button>

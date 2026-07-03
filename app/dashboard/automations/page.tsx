@@ -14,6 +14,7 @@ export default function AutomationsPage() {
     const [isLoading, setIsLoading] = useState(true)
     const [activeTab, setActiveTab] = useState<'comment' | 'dm' | 'story'>('comment')
     const [showCreateForm, setShowCreateForm] = useState(false)
+    const [editRule, setEditRule] = useState<Automation | null>(null)
     const [aiEnabled, setAiEnabled] = useState(false)
     const [aiLoading, setAiLoading] = useState(true)
     const [aiToggling, setAiToggling] = useState(false)
@@ -86,6 +87,11 @@ export default function AutomationsPage() {
         fetchAutomations()
     }
 
+    const handleEditRule = (rule: Automation) => {
+        setEditRule(rule)
+        setShowCreateForm(true)
+    }
+
     if (isSessionLoading) return <div className="h-screen flex items-center justify-center bg-black"><div className="w-6 h-6 border-2 border-white/20 border-t-white rounded-full animate-spin" /></div>
     if (!userId) return <div className="h-screen flex items-center justify-center bg-black text-neutral-500">Please log in</div>
 
@@ -103,18 +109,13 @@ export default function AutomationsPage() {
     ]
 
     return (
-        <div className="min-h-screen bg-black p-4 md:p-8">
-            <div className="max-w-3xl mx-auto space-y-6">
+        <div className="min-h-screen bg-black">
+            <div className="max-w-5xl mx-auto px-4 md:px-8 py-8 space-y-8">
                 {/* Header */}
-                <div className="flex items-center justify-between">
+                <div className="flex items-end justify-between gap-4 flex-wrap">
                     <div>
-                        <h1 className="text-2xl font-bold text-white tracking-tight flex items-center gap-2">
-                            <Zap className="w-5 h-5 text-yellow-400" />
-                            Automations
-                        </h1>
-                        <p className="text-neutral-500 text-sm mt-0.5">
-                            {automations.length} active rule{automations.length !== 1 ? 's' : ''}
-                        </p>
+                        <p className="font-mono-ui text-[10px] uppercase tracking-[0.3em] text-neutral-600 mb-2">Rules engine</p>
+                        <h1 className="font-serif-display text-4xl md:text-5xl text-white leading-none">Automations</h1>
                     </div>
                     <div className="flex items-center gap-2">
                         {/* AI Auto-Reply Toggle */}
@@ -124,18 +125,18 @@ export default function AutomationsPage() {
                             <>
                                 <button
                                     onClick={() => setShowAiContext(!showAiContext)}
-                                    className="p-2 rounded-xl bg-white/5 border border-white/10 text-neutral-500 hover:text-white hover:bg-white/10 transition-all"
-                                    title="AI Settings"
+                                    className="w-9 h-9 flex items-center justify-center rounded-full border border-white/10 text-neutral-500 hover:text-white hover:border-white/30 transition-colors"
+                                    title="AI settings"
                                 >
-                                    <Brain className="w-3.5 h-3.5" />
+                                    <Brain className="w-4 h-4" />
                                 </button>
                                 <button
                                     onClick={handleToggleAI}
                                     disabled={aiToggling}
-                                    className={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold tracking-wide uppercase transition-all ${
+                                    className={`flex items-center gap-2 h-9 px-4 rounded-full font-mono-ui text-[11px] font-bold uppercase tracking-widest transition-colors ${
                                         aiEnabled
-                                            ? 'bg-purple-500/10 border border-purple-500/30 text-purple-400 hover:bg-purple-500/20'
-                                            : 'bg-white/5 border border-white/10 text-neutral-500 hover:bg-white/10'
+                                            ? 'bg-[#ffe14d]/10 border border-[#ffe14d]/40 text-[#ffe14d]'
+                                            : 'border border-white/10 text-neutral-500 hover:text-white hover:border-white/30'
                                     }`}
                                 >
                                     <Sparkles className={`w-3.5 h-3.5 ${aiToggling ? 'animate-pulse' : ''}`} />
@@ -144,11 +145,14 @@ export default function AutomationsPage() {
                             </>
                         )}
                         <button
-                            onClick={() => setShowCreateForm(!showCreateForm)}
-                            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all active:scale-95 ${
-                                showCreateForm 
-                                    ? 'bg-white/10 text-white border border-white/20' 
-                                    : 'bg-white text-black hover:bg-white/90 shadow-lg shadow-white/5'
+                            onClick={() => {
+                                if (showCreateForm) setEditRule(null)
+                                setShowCreateForm(!showCreateForm)
+                            }}
+                            className={`flex items-center gap-2 h-9 px-5 rounded-full font-mono-ui text-[11px] font-bold uppercase tracking-widest transition-all active:scale-95 ${
+                                showCreateForm
+                                    ? 'border border-white/20 text-white hover:border-white/40'
+                                    : 'bg-[#ffe14d] text-black hover:brightness-95'
                             }`}
                         >
                             <Plus className={`w-4 h-4 transition-transform duration-200 ${showCreateForm ? 'rotate-45' : ''}`} />
@@ -159,10 +163,10 @@ export default function AutomationsPage() {
 
                 {/* AI Context Panel */}
                 {showAiContext && (
-                    <div className="rounded-2xl border border-purple-500/20 bg-purple-500/5 p-5 animate-in fade-in slide-in-from-top-2 duration-200 space-y-3">
+                    <div className="rounded-2xl border border-[#ffe14d]/20 bg-[#ffe14d]/[0.04] p-5 animate-in fade-in slide-in-from-top-2 duration-200 space-y-3">
                         <div className="flex items-center gap-2">
-                            <Brain className="w-4 h-4 text-purple-400" />
-                            <span className="text-sm font-semibold text-purple-300">AI Personality Context</span>
+                            <Brain className="w-4 h-4 text-[#ffe14d]" />
+                            <span className="text-sm font-semibold text-[#ffe14d]">AI Personality Context</span>
                         </div>
                         <p className="text-xs text-neutral-500">Tell AI about your account — niche, products, tone, what to say/avoid. More context = more human replies.</p>
                         <textarea
@@ -170,35 +174,35 @@ export default function AutomationsPage() {
                             onChange={e => setAiContext(e.target.value)}
                             placeholder={`e.g. This is a fitness coaching account. I sell online training programs (₹2999/mo). My tone is motivating but chill. If someone asks about pricing, tell them to DM for a free consultation. Never promise specific results.`}
                             rows={4}
-                            className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-neutral-600 resize-none focus:outline-none focus:border-purple-500/50 transition-colors"
+                            className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-neutral-600 resize-none focus:outline-none focus:border-[#ffe14d]/50 transition-colors"
                         />
                         <button
                             onClick={handleSaveAiContext}
                             disabled={aiContextSaving}
-                            className="px-4 py-2 rounded-xl bg-purple-500 hover:bg-purple-400 text-white text-xs font-bold transition-all disabled:opacity-50"
+                            className="px-4 py-2 rounded-xl bg-[#ffe14d] hover:brightness-95 text-black text-xs font-bold transition-all disabled:opacity-50"
                         >
                             {aiContextSaving ? 'Saving...' : aiContextSaved ? 'Saved ✓' : 'Save Context'}
                         </button>
                     </div>
                 )}
 
-                {/* Pill Tabs */}
-                <div className="flex gap-1 bg-white/5 p-1 rounded-xl border border-white/5">
+                {/* Tabs — editorial underline */}
+                <div className="flex items-center gap-6 border-b border-white/10">
                     {tabs.map((tab) => (
                         <button
                             key={tab.key}
                             onClick={() => setActiveTab(tab.key)}
-                            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                            className={`relative flex items-center gap-2 pb-3 -mb-px font-mono-ui text-xs uppercase tracking-widest transition-colors border-b-2 ${
                                 activeTab === tab.key
-                                    ? 'bg-white text-black shadow-sm'
-                                    : 'text-neutral-500 hover:text-white hover:bg-white/5'
+                                    ? 'text-white border-[#ffe14d]'
+                                    : 'text-neutral-600 border-transparent hover:text-neutral-300'
                             }`}
                         >
                             {tab.icon}
-                            <span className="hidden sm:inline">{tab.label}</span>
+                            <span>{tab.label}</span>
                             {tab.count > 0 && (
                                 <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${
-                                    activeTab === tab.key ? 'bg-black/10 text-black' : 'bg-white/10 text-white'
+                                    activeTab === tab.key ? 'bg-[#ffe14d] text-black' : 'bg-white/10 text-neutral-400'
                                 }`}>
                                     {tab.count}
                                 </span>
@@ -209,13 +213,15 @@ export default function AutomationsPage() {
 
                 {/* Create Form (Collapsible) */}
                 {showCreateForm && (
-                    <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-6 animate-in fade-in slide-in-from-top-2 duration-300">
+                    <div className="rounded-2xl border border-white/10 bg-[#0b0b0a] p-6 md:p-8 animate-in fade-in slide-in-from-top-2 duration-300">
                         <CreateRuleForm
                             userId={userId}
-                            triggerSource={activeTab}
+                            triggerSource={editRule ? editRule.trigger_source : activeTab}
+                            editRule={editRule}
                             onSuccess={() => {
                                 fetchAutomations()
                                 setShowCreateForm(false)
+                                setEditRule(null)
                             }}
                         />
                     </div>
@@ -223,7 +229,7 @@ export default function AutomationsPage() {
 
                 {/* Ice Breakers (DM only) */}
                 {activeTab === 'dm' && (
-                    <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
+                    <div className="rounded-2xl border border-white/10 bg-[#0b0b0a] p-6">
                         <IceBreakersManager />
                     </div>
                 )}
@@ -237,6 +243,8 @@ export default function AutomationsPage() {
                     <AutomationList
                         automations={filteredAutomations}
                         onDelete={handleDeleteRule}
+                        onEdit={handleEditRule}
+                        onChanged={fetchAutomations}
                         userId={userId}
                     />
                 )}

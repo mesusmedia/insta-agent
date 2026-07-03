@@ -29,7 +29,7 @@ export default function PublisherPage() {
     return (
         <div className="space-y-6 max-w-5xl mx-auto pb-20">
             <div className="flex flex-col gap-2">
-                <h1 className="text-3xl font-bold bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 bg-clip-text text-transparent w-fit">
+                <h1 className="font-serif-display text-4xl text-white w-fit">
                     Reels Publisher
                 </h1>
                 <p className="text-neutral-400">
@@ -46,7 +46,7 @@ export default function PublisherPage() {
                     <div className="sticky top-6">
                         <SchedulerSettings userId={userId} />
 
-                        <Card className="mt-6 bg-gradient-to-br from-purple-900/20 to-blue-900/20 border-white/10">
+                        <Card className="mt-6 bg-[#0b0b0a] border-white/10">
                             <CardHeader>
                                 <CardTitle className="text-lg text-white">Automation Tips</CardTitle>
                             </CardHeader>

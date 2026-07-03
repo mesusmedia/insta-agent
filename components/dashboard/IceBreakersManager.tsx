@@ -84,12 +84,12 @@ export function IceBreakersManager() {
         <div className="space-y-6 max-w-2xl mx-auto">
             <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="text-2xl font-bold text-white">Ice Breakers</h2>
+                    <h2 className="font-serif-display text-3xl text-white">Ice Breakers</h2>
                     <p className="text-muted-foreground text-sm">
                         Questions people see when they start a chat with you.
                     </p>
                 </div>
-                <Button onClick={handleSave} disabled={saving} className="bg-purple-600 hover:bg-purple-700 text-white">
+                <Button onClick={handleSave} disabled={saving} className="bg-[#ffe14d] hover:brightness-95 text-black font-bold">
                     {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
                     Save & Sync
                 </Button>
@@ -146,7 +146,7 @@ export function IceBreakersManager() {
                 )}
             </div>
 
-            <div className="bg-blue-500/10 border border-blue-500/20 p-4 rounded-xl flex gap-3 text-sm text-blue-200">
+            <div className="bg-white/[0.04] border border-white/10 p-4 rounded-xl flex gap-3 text-sm text-neutral-300">
                 <RefreshCw className="w-5 h-5 shrink-0" />
                 <p>
                     Changes made here are automatically synced to your Instagram Profile. It may take a few minutes for them to appear for all users.

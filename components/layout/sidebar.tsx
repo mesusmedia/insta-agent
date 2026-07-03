@@ -2,10 +2,21 @@
 
 import type React from "react"
 import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Instagram, LayoutDashboard, Zap, LogOut, Settings, BarChart3, MessageSquare, Snowflake, Clapperboard } from "lucide-react"
+import {
+  Zap, LayoutDashboard, LogOut, Settings, BarChart3,
+  MessageSquare, Snowflake, Clapperboard, Send,
+} from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+
+const NAV = [
+  { href: "/dashboard", icon: LayoutDashboard, label: "Overview" },
+  { href: "/dashboard/automations", icon: Zap, label: "Automations" },
+  { href: "/dashboard/inbox", icon: MessageSquare, label: "Inbox" },
+  { href: "/dashboard/publisher", icon: Clapperboard, label: "Publisher" },
+  { href: "/dashboard/ice-breakers", icon: Snowflake, label: "Ice breakers" },
+  { href: "/dashboard/analytics", icon: BarChart3, label: "Analytics" },
+]
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
   username?: string
@@ -14,131 +25,95 @@ interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
   onNavigate?: () => void
 }
 
-export function Sidebar({ className, username = "Demo User", onLogout, onNavigate, ...props }: SidebarProps) {
+export function Sidebar({ className, username = "creator", onLogout, onNavigate, ...props }: SidebarProps) {
   const pathname = usePathname()
 
-  const isActive = (path: string) => pathname === path
-
   return (
-    <aside className={cn("flex flex-col", className)} {...props}>
-      <div className="p-6 flex items-center gap-3">
-        <div className="w-8 h-8 bg-white text-black rounded-lg flex items-center justify-center">
-          <Instagram className="w-5 h-5" />
+    <aside className={cn("flex flex-col bg-[#0a0a09]", className)} {...props}>
+      {/* Brand */}
+      <div className="px-5 pt-6 pb-5 flex items-center gap-2.5">
+        <div className="w-7 h-7 bg-[#ffe14d] text-black rounded-md flex items-center justify-center shrink-0">
+          <Zap className="w-3.5 h-3.5" strokeWidth={2.5} />
         </div>
-        <div>
-          <h2 className="font-bold text-base tracking-tight text-white leading-none">InstaAuto</h2>
-          <span className="text-[10px] uppercase font-bold text-neutral-500 tracking-widest">Pro</span>
-        </div>
+        <span className="font-mono-ui text-sm font-bold tracking-tight text-white">insta-p8</span>
       </div>
 
-      <div className="flex-1 px-4 space-y-2 py-4">
-        <div className="px-2 mb-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground/50">Main</div>
-        <NavItem
-          href="/dashboard"
-          icon={<LayoutDashboard className="w-4 h-4" />}
-          label="Dashboard"
-          active={isActive("/dashboard")}
-          onClick={onNavigate}
-        />
-        <NavItem
-          href="/dashboard/automations"
-          icon={<Zap className="w-4 h-4" />}
-          label="Automations"
-          active={isActive("/dashboard/automations")}
-          onClick={onNavigate}
-        />
-        <NavItem
-          href="/dashboard/publisher"
-          icon={<Clapperboard className="w-4 h-4" />}
-          label="Publisher"
-          active={isActive("/dashboard/publisher")}
-          onClick={onNavigate}
-        />
-        <NavItem
-          href="/dashboard/ice-breakers"
-          icon={<Snowflake className="w-4 h-4" />}
-          label="Ice Breakers"
-          active={isActive("/dashboard/ice-breakers")}
-          onClick={onNavigate}
-        />
-        <NavItem
-          href="/dashboard/inbox"
-          icon={<MessageSquare className="w-4 h-4" />}
-          label="Inbox"
-          active={isActive("/dashboard/inbox")}
-          onClick={onNavigate}
-        />
-        <NavItem
-          href="/dashboard/analytics"
-          icon={<BarChart3 className="w-4 h-4" />}
-          label="Analytics"
-          active={isActive("/dashboard/analytics")}
-          onClick={onNavigate}
-        />
+      <div className="mx-5 h-px bg-white/[0.06]" />
 
-        <div className="px-2 mb-2 mt-6 text-[10px] font-bold uppercase tracking-wider text-muted-foreground/50">
-          System
+      {/* Nav */}
+      <nav className="flex-1 px-3 py-4 space-y-0.5">
+        {NAV.map(({ href, icon: Icon, label }) => {
+          const active = pathname === href
+          return (
+            <Link
+              key={href}
+              href={href}
+              onClick={onNavigate}
+              className={cn(
+                "flex items-center gap-3 px-3 py-2 rounded-md text-[13px] transition-colors relative",
+                active
+                  ? "text-white bg-white/[0.06]"
+                  : "text-neutral-500 hover:text-neutral-200 hover:bg-white/[0.03]",
+              )}
+            >
+              {active && <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-4 rounded-full bg-[#ffe14d]" />}
+              <Icon className={cn("w-4 h-4 shrink-0", active ? "text-[#ffe14d]" : "")} strokeWidth={active ? 2.2 : 1.8} />
+              <span className={active ? "font-medium" : ""}>{label}</span>
+            </Link>
+          )
+        })}
+
+        <div className="pt-5 pb-1 px-3">
+          <div className="h-px bg-white/[0.06]" />
         </div>
-        <NavItem
+
+        <Link
           href="/dashboard/settings"
-          icon={<Settings className="w-4 h-4" />}
-          label="Settings"
-          active={isActive("/dashboard/settings")}
           onClick={onNavigate}
-        />
-      </div>
+          className={cn(
+            "flex items-center gap-3 px-3 py-2 rounded-md text-[13px] transition-colors relative",
+            pathname === "/dashboard/settings"
+              ? "text-white bg-white/[0.06]"
+              : "text-neutral-500 hover:text-neutral-200 hover:bg-white/[0.03]",
+          )}
+        >
+          {pathname === "/dashboard/settings" && <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-4 rounded-full bg-[#ffe14d]" />}
+          <Settings className="w-4 h-4 shrink-0" strokeWidth={1.8} />
+          <span>Settings</span>
+        </Link>
 
-      <div className="p-4 border-t border-white/10">
-        <div className="flex items-center gap-3 px-3 py-3 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm group">
-          <div className="w-9 h-9 rounded-full bg-neutral-800 ring-2 ring-white/10 group-hover:ring-white/30 transition-all flex items-center justify-center">
-            <span className="text-xs font-bold text-neutral-400">{username.charAt(0).toUpperCase()}</span>
-          </div>
-          <div className="flex-1 overflow-hidden">
-            <p className="text-xs font-bold text-white truncate">{username}</p>
-            <div className="flex items-center gap-1">
-              <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-              <p className="text-[10px] text-neutral-500">Pro Plan</p>
+        <a
+          href="https://t.me/instagramautomationp8"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-3 px-3 py-2 rounded-md text-[13px] text-neutral-500 hover:text-[#2AABEE] hover:bg-white/[0.03] transition-colors"
+        >
+          <Send className="w-4 h-4 shrink-0" strokeWidth={1.8} />
+          <span>Get help</span>
+        </a>
+      </nav>
+
+      {/* Account */}
+      <div className="px-3 pb-4">
+        <div className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg border border-white/[0.06] group">
+          <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-500 p-[1.5px] shrink-0">
+            <div className="w-full h-full rounded-full bg-black flex items-center justify-center">
+              <span className="text-[10px] font-bold text-white">{username.charAt(0).toUpperCase()}</span>
             </div>
           </div>
-          <Button
-            variant="ghost"
-            size="icon"
+          <div className="flex-1 min-w-0">
+            <p className="text-xs text-white truncate">@{username}</p>
+            <p className="font-mono-ui text-[9px] uppercase tracking-wider text-neutral-600">connected</p>
+          </div>
+          <button
             onClick={onLogout}
-            className="h-8 w-8 text-muted-foreground hover:text-red-400 hover:bg-red-500/10 rounded-full transition-colors"
+            title="Log out"
+            className="p-1.5 rounded-md text-neutral-600 hover:text-red-400 hover:bg-red-500/10 transition-colors"
           >
-            <LogOut className="w-4 h-4" />
-          </Button>
+            <LogOut className="w-3.5 h-3.5" />
+          </button>
         </div>
       </div>
     </aside>
-  )
-}
-
-function NavItem({
-  icon,
-  label,
-  active = false,
-  href,
-  onClick,
-}: {
-  icon: React.ReactNode
-  label: string
-  active?: boolean
-  href: string
-  onClick?: () => void
-}) {
-  return (
-    <Link
-      href={href}
-      onClick={onClick}
-      className={`flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all font-medium text-[13px] group relative overflow-hidden ${active ? "bg-white text-black shadow-none" : "text-neutral-500 hover:text-white hover:bg-white/5"
-        }`}
-    >
-      {active && (
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] animate-shimmer" />
-      )}
-      <span className={active ? "text-black" : "group-hover:text-white transition-colors duration-300"}>{icon}</span>
-      <span>{label}</span>
-    </Link>
   )
 }
