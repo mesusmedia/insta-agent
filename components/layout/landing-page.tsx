@@ -27,6 +27,11 @@ export function LandingPage() {
   }
 
   const handleTestLogin = () => {
+    localStorage.setItem("ig_user_id", "9999999999")
+    localStorage.setItem("ig_username", "test_creator")
+    router.push("/dashboard")
+  }
+
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-[#ededed] selection:bg-[#ffe14d] selection:text-black overflow-x-hidden antialiased">
       <style>{`
@@ -225,4 +230,3 @@ function Feature({ icon, title, desc }: { icon: React.ReactNode; title: string; 
     </div>
   )
 }
-  
