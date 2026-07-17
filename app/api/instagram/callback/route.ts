@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { getSupabaseServerClient } from "@/lib/supabase-server"
 
-async function exchangeAndSave(code: string, request: NextRequest) {
+async function exchangeAndSave(code: string) {
   const clientId = process.env.INSTAGRAM_APP_ID
   const clientSecret = process.env.INSTAGRAM_APP_SECRET
   const redirectUri = process.env.NEXT_PUBLIC_INSTAGRAM_REDIRECT_URI
@@ -10,82 +10,76 @@ async function exchangeAndSave(code: string, request: NextRequest) {
     throw new Error("Missing Env Vars")
   }
 
-  // 1. Exchange code for short token via Facebook Graph API
-  const tokenUrl = `https://graph.facebook.com/v24.0/oauth/access_token?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&client_secret=${clientSecret}&code=${encodeURIComponent(code)}`
-  const tokenRes = await fetch(tokenUrl)
+  // 1. Exchange code for short token via Instagram API
+  const tokenParams = new URLSearchParams({
+    client_id: clientId,
+    client_secret: clientSecret,
+    grant_type: "authorization_code",
+    redirect_uri: redirectUri,
+    code,
+  })
+
+  const tokenRes = await fetch("https://api.instagram.com/oauth/access_token", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: tokenParams.toString(),
+  })
+
   const tokenData = await tokenRes.json()
 
-  if (tokenData.error) {
+  if (!tokenRes.ok || tokenData.error_message) {
     console.error("[callback] Token Error:", JSON.stringify(tokenData))
-    throw new Error(tokenData.error.message || "Token exchange failed")
+    throw new Error(tokenData.error_message || "Token exchange failed")
   }
 
   const shortToken = tokenData.access_token
+  const loginUserId = tokenData.user_id.toString()
 
   // 2. Exchange for long-lived token (60 days)
-  const longUrl = `https://graph.facebook.com/v24.0/oauth/access_token?grant_type=fb_exchange_token&client_id=${clientId}&client_secret=${clientSecret}&fb_exchange_token=${shortToken}`
+  const longUrl = `https://graph.instagram.com/access_token?grant_type=ig_exchange_token&client_secret=${clientSecret}&access_token=${shortToken}`
   const longRes = await fetch(longUrl)
   const longData = await longRes.json()
-  const longToken = longData.access_token || shortToken
+  const accessToken = longData.access_token || shortToken
   const expiresIn = longData.expires_in || 5184000
 
-  // 3. Get Facebook Pages
-  const pagesRes = await fetch(`https://graph.facebook.com/v24.0/me/accounts?access_token=${longToken}`)
-  const pagesData = await pagesRes.json()
-  console.log("[callback] Pages found:", pagesData.data?.length || 0)
+  // 3. Get username and user_id (IG Professional Account ID)
+  let username = `user_${loginUserId}`
+  let businessAccountId = loginUserId
 
-  if (!pagesData.data || pagesData.data.length === 0) {
-    throw new Error("No Facebook Pages found")
+  try {
+    const meRes = await fetch(
+      `https://graph.instagram.com/v24.0/me?fields=user_id,username&access_token=${accessToken}`
+    )
+    const meData = await meRes.json()
+    console.log("[callback] /me:", JSON.stringify(meData))
+
+    if (meData.username) username = meData.username
+    if (meData.user_id) businessAccountId = meData.user_id.toString()
+  } catch (e) {
+    console.error("[callback] /me failed:", e)
   }
 
-  // 4. Find Instagram Business Accounts
-  const igAccounts: Array<{ igAccountId: string; username: string; pageAccessToken: string }> = []
-
-  for (const page of pagesData.data) {
-    const igRes = await fetch(`https://graph.facebook.com/v24.0/${page.id}?fields=instagram_business_account&access_token=${page.access_token}`)
-    const igData = await igRes.json()
-
-    if (igData.instagram_business_account) {
-      const igId = igData.instagram_business_account.id
-      const profileRes = await fetch(`https://graph.facebook.com/v24.0/${igId}?fields=username,name&access_token=${page.access_token}`)
-      const profileData = await profileRes.json()
-
-      igAccounts.push({
-        igAccountId: igId,
-        username: profileData.username || page.name,
-        pageAccessToken: page.access_token,
-      })
-    }
-  }
-
-  if (igAccounts.length === 0) {
-    throw new Error("No Instagram Business account found")
-  }
-
-  // 5. Use first account (or selected one in future)
-  const chosen = igAccounts[0]
-
-  // 6. Save to Supabase
+  // 4. Save to Supabase
   const supabase = await getSupabaseServerClient()
 
   const updates: any = {
-    username: chosen.username,
-    access_token: chosen.pageAccessToken,
+    username,
+    access_token: accessToken,
     token_expires_at: new Date(Date.now() + expiresIn * 1000).toISOString(),
     updated_at: new Date().toISOString(),
-    business_account_id: chosen.igAccountId,
-    page_id: chosen.igAccountId,
+    business_account_id: businessAccountId,
+    page_id: businessAccountId,
   }
 
-  console.log(`[callback] Saving: ${chosen.username} | ig_id=${chosen.igAccountId}`)
+  console.log(`[callback] Saving: ${username} | id=${loginUserId} | biz_id=${businessAccountId}`)
 
   const { error: upsertError } = await supabase
     .from("users")
-    .upsert({ id: chosen.igAccountId, ...updates }, { onConflict: "id" })
+    .upsert({ id: loginUserId, ...updates }, { onConflict: "id" })
 
   if (upsertError) throw upsertError
 
-  return { username: chosen.username, userId: chosen.igAccountId, expiresIn }
+  return { username, userId: loginUserId, expiresIn }
 }
 
 export async function GET(request: NextRequest) {
@@ -101,13 +95,11 @@ export async function GET(request: NextRequest) {
 
   if (code) {
     try {
-      // Exchange token directly in GET — avoids code corruption from redirects
-      const result = await exchangeAndSave(code, request)
+      const result = await exchangeAndSave(code)
 
       const redirectUrl = new URL("/dashboard", request.url)
       const response = NextResponse.redirect(redirectUrl)
 
-      // Set session cookie
       response.cookies.set("insta_session", JSON.stringify({
         username: result.username,
         userId: result.userId,
@@ -117,8 +109,6 @@ export async function GET(request: NextRequest) {
         sameSite: "lax",
         secure: process.env.NODE_ENV === "production",
       })
-
-      // Set individual cookies for the hook to read
       response.cookies.set("ig_user_id", result.userId, {
         path: "/",
         maxAge: result.expiresIn,
@@ -134,7 +124,7 @@ export async function GET(request: NextRequest) {
 
       return response
     } catch (err: any) {
-      console.error("[callback] GET exchange failed:", err.message)
+      console.error("[callback] GET failed:", err.message)
       const redirectUrl = new URL("/", request.url)
       redirectUrl.searchParams.set("error", err.message)
       return NextResponse.redirect(redirectUrl)
@@ -142,30 +132,4 @@ export async function GET(request: NextRequest) {
   }
 
   return NextResponse.json({ error: "Invalid callback" }, { status: 400 })
-}
-
-export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json()
-    const { code } = body
-    if (!code) return NextResponse.json({ error: "No code" }, { status: 400 })
-
-    const result = await exchangeAndSave(code, request)
-
-    const response = NextResponse.json({ success: true, username: result.username, userId: result.userId })
-    response.cookies.set("insta_session", JSON.stringify({
-      username: result.username,
-      userId: result.userId,
-    }), {
-      path: "/",
-      maxAge: result.expiresIn,
-      sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
-    })
-    return response
-
-  } catch (error: any) {
-    console.error("[callback] POST Error:", error.message)
-    return NextResponse.json({ error: error.message }, { status: 500 })
-  }
 }
