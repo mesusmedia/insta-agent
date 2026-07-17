@@ -24,7 +24,7 @@ interface DashboardStats {
 }
 
 export default function DashboardPage() {
-    const { username, userId, isLoading: isSessionLoading, pendingAccounts, selectAccount } = useInstagramSession()
+    const { username, userId, isLoading: isSessionLoading } = useInstagramSession()
     const [stats, setStats] = useState<DashboardStats | null>(null)
     const [loading, setLoading] = useState(true)
 
@@ -47,10 +47,6 @@ export default function DashboardPage() {
 
         fetchStats()
     }, [userId])
-
-    if (pendingAccounts) {
-        return <AccountSelector accounts={pendingAccounts} onSelect={selectAccount} />
-    }
 
     if (isSessionLoading || loading) {
         return (
