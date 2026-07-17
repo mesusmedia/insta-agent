@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { Card } from "@/components/ui/card"
 import { useInstagramSession } from "@/hooks/use-instagram-session"
 import { Activity, Users, MessageCircle, Zap, Loader2 } from "lucide-react"
+import { AccountSelector } from "@/components/layout/account-selector"
 
 interface DashboardStats {
     metrics: {
@@ -23,7 +24,7 @@ interface DashboardStats {
 }
 
 export default function DashboardPage() {
-    const { username, userId, isLoading: isSessionLoading } = useInstagramSession()
+    const { username, userId, isLoading: isSessionLoading, pendingAccounts, selectAccount } = useInstagramSession()
     const [stats, setStats] = useState<DashboardStats | null>(null)
     const [loading, setLoading] = useState(true)
 
@@ -46,6 +47,10 @@ export default function DashboardPage() {
 
         fetchStats()
     }, [userId])
+
+    if (pendingAccounts) {
+        return <AccountSelector accounts={pendingAccounts} onSelect={selectAccount} />
+    }
 
     if (isSessionLoading || loading) {
         return (
