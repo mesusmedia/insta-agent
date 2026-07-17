@@ -10,76 +10,97 @@ async function exchangeAndSave(code: string) {
     throw new Error("Missing Env Vars")
   }
 
-  // 1. Exchange code for short token via Instagram API
-  const tokenParams = new URLSearchParams({
-    client_id: clientId,
-    client_secret: clientSecret,
-    grant_type: "authorization_code",
-    redirect_uri: redirectUri,
-    code,
-  })
-
-  const tokenRes = await fetch("https://api.instagram.com/oauth/access_token", {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: tokenParams.toString(),
-  })
-
+  // 1. Exchange code via Facebook Graph API
+  const tokenUrl = `https://graph.facebook.com/v24.0/oauth/access_token?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&client_secret=${clientSecret}&code=${encodeURIComponent(code)}`
+  const tokenRes = await fetch(tokenUrl)
   const tokenData = await tokenRes.json()
 
-  if (!tokenRes.ok || tokenData.error_message) {
+  if (tokenData.error) {
     console.error("[callback] Token Error:", JSON.stringify(tokenData))
-    throw new Error(tokenData.error_message || "Token exchange failed")
+    throw new Error(tokenData.error.message || "Token exchange failed")
   }
 
   const shortToken = tokenData.access_token
-  const loginUserId = tokenData.user_id.toString()
 
-  // 2. Exchange for long-lived token (60 days)
-  const longUrl = `https://graph.instagram.com/access_token?grant_type=ig_exchange_token&client_secret=${clientSecret}&access_token=${shortToken}`
+  // 2. Long-lived token (60 days)
+  const longUrl = `https://graph.facebook.com/v24.0/oauth/access_token?grant_type=fb_exchange_token&client_id=${clientId}&client_secret=${clientSecret}&fb_exchange_token=${shortToken}`
   const longRes = await fetch(longUrl)
   const longData = await longRes.json()
-  const accessToken = longData.access_token || shortToken
+  const longToken = longData.access_token || shortToken
   const expiresIn = longData.expires_in || 5184000
 
-  // 3. Get username and user_id (IG Professional Account ID)
-  let username = `user_${loginUserId}`
-  let businessAccountId = loginUserId
+  // 3. Get Facebook Pages
+  const pagesRes = await fetch(`https://graph.facebook.com/v24.0/me/accounts?access_token=${longToken}`)
+  const pagesData = await pagesRes.json()
 
-  try {
-    const meRes = await fetch(
-      `https://graph.instagram.com/v24.0/me?fields=user_id,username&access_token=${accessToken}`
-    )
-    const meData = await meRes.json()
-    console.log("[callback] /me:", JSON.stringify(meData))
-
-    if (meData.username) username = meData.username
-    if (meData.user_id) businessAccountId = meData.user_id.toString()
-  } catch (e) {
-    console.error("[callback] /me failed:", e)
+  if (!pagesData.data || pagesData.data.length === 0) {
+    throw new Error("No Facebook Pages found")
   }
 
-  // 4. Save to Supabase
+  // 4. Find ALL Instagram Business Accounts
+  const igAccounts: Array<{ igAccountId: string; username: string; profilePicture: string; pageAccessToken: string; pageName: string }> = []
+
+  for (const page of pagesData.data) {
+    const igRes = await fetch(`https://graph.facebook.com/v24.0/${page.id}?fields=instagram_business_account&access_token=${page.access_token}`)
+    const igData = await igRes.json()
+
+    if (igData.instagram_business_account) {
+      const igId = igData.instagram_business_account.id
+      const profileRes = await fetch(`https://graph.facebook.com/v24.0/${igId}?fields=username,name,profile_picture_url&access_token=${page.access_token}`)
+      const profileData = await profileRes.json()
+
+      igAccounts.push({
+        igAccountId: igId,
+        username: profileData.username || page.name,
+        profilePicture: profileData.profile_picture_url || "",
+        pageAccessToken: page.access_token,
+        pageName: page.name,
+      })
+    }
+  }
+
+  if (igAccounts.length === 0) {
+    throw new Error("No Instagram Business account found")
+  }
+
+  console.log(`[callback] Found ${igAccounts.length} IG accounts:`, igAccounts.map(a => a.username))
+
+  return { igAccounts, expiresIn }
+}
+
+async function saveAccount(account: { igAccountId: string; username: string; pageAccessToken: string }, expiresIn: number) {
   const supabase = await getSupabaseServerClient()
 
   const updates: any = {
-    username,
-    access_token: accessToken,
+    username: account.username,
+    access_token: account.pageAccessToken,
     token_expires_at: new Date(Date.now() + expiresIn * 1000).toISOString(),
     updated_at: new Date().toISOString(),
-    business_account_id: businessAccountId,
-    page_id: businessAccountId,
+    business_account_id: account.igAccountId,
+    page_id: account.igAccountId,
   }
 
-  console.log(`[callback] Saving: ${username} | id=${loginUserId} | biz_id=${businessAccountId}`)
+  console.log(`[callback] Saving: ${account.username} | ig_id=${account.igAccountId}`)
 
   const { error: upsertError } = await supabase
     .from("users")
-    .upsert({ id: loginUserId, ...updates }, { onConflict: "id" })
+    .upsert({ id: account.igAccountId, ...updates }, { onConflict: "id" })
 
   if (upsertError) throw upsertError
 
-  return { username, userId: loginUserId, expiresIn }
+  return { username: account.username, userId: account.igAccountId, expiresIn }
+}
+
+function setSessionCookies(response: NextResponse, username: string, userId: string, expiresIn: number) {
+  const cookieOpts = {
+    path: "/",
+    maxAge: expiresIn,
+    sameSite: "lax" as const,
+    secure: process.env.NODE_ENV === "production",
+  }
+  response.cookies.set("insta_session", JSON.stringify({ username, userId }), cookieOpts)
+  response.cookies.set("ig_user_id", userId, cookieOpts)
+  response.cookies.set("ig_username", username, cookieOpts)
 }
 
 export async function GET(request: NextRequest) {
@@ -95,34 +116,34 @@ export async function GET(request: NextRequest) {
 
   if (code) {
     try {
-      const result = await exchangeAndSave(code)
+      const { igAccounts, expiresIn } = await exchangeAndSave(code)
 
-      const redirectUrl = new URL("/dashboard", request.url)
+      if (igAccounts.length === 1) {
+        // Single account — save and redirect
+        const result = await saveAccount(igAccounts[0], expiresIn)
+        const response = NextResponse.redirect(new URL("/dashboard", request.url))
+        setSessionCookies(response, result.username, result.userId, result.expiresIn)
+        return response
+      }
+
+      // Multiple accounts — redirect to selector page
+      const redirectUrl = new URL("/select-account", request.url)
       const response = NextResponse.redirect(redirectUrl)
-
-      response.cookies.set("insta_session", JSON.stringify({
-        username: result.username,
-        userId: result.userId,
-      }), {
-        path: "/",
-        maxAge: result.expiresIn,
-        sameSite: "lax",
-        secure: process.env.NODE_ENV === "production",
-      })
-      response.cookies.set("ig_user_id", result.userId, {
-        path: "/",
-        maxAge: result.expiresIn,
-        sameSite: "lax",
-        secure: process.env.NODE_ENV === "production",
-      })
-      response.cookies.set("ig_username", result.username, {
-        path: "/",
-        maxAge: result.expiresIn,
-        sameSite: "lax",
-        secure: process.env.NODE_ENV === "production",
-      })
-
+      // Store accounts in cookie for selector page
+      response.cookies.set("pending_accounts", JSON.stringify(igAccounts.map(a => ({
+        id: a.igAccountId,
+        username: a.username,
+        pic: a.profilePicture,
+        page: a.pageName,
+      }))), { path: "/", maxAge: 300, sameSite: "lax" })
+      // Store tokens temporarily
+      response.cookies.set("pending_tokens", JSON.stringify(igAccounts.map(a => ({
+        id: a.igAccountId,
+        token: a.pageAccessToken,
+      }))), { path: "/", maxAge: 300, sameSite: "lax", httpOnly: true })
+      response.cookies.set("pending_expires", expiresIn.toString(), { path: "/", maxAge: 300 })
       return response
+
     } catch (err: any) {
       console.error("[callback] GET failed:", err.message)
       const redirectUrl = new URL("/", request.url)
@@ -132,4 +153,54 @@ export async function GET(request: NextRequest) {
   }
 
   return NextResponse.json({ error: "Invalid callback" }, { status: 400 })
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json()
+    const { selectedAccountId } = body
+
+    if (!selectedAccountId) {
+      return NextResponse.json({ error: "No account selected" }, { status: 400 })
+    }
+
+    // Read pending tokens from cookie
+    const tokensCookie = request.cookies.get("pending_tokens")?.value
+    const expiresCookie = request.cookies.get("pending_expires")?.value
+
+    if (!tokensCookie || !expiresCookie) {
+      return NextResponse.json({ error: "Session expired. Please login again." }, { status: 400 })
+    }
+
+    const tokens = JSON.parse(tokensCookie)
+    const expiresIn = parseInt(expiresCookie)
+    const selected = tokens.find((t: any) => t.id === selectedAccountId)
+
+    if (!selected) {
+      return NextResponse.json({ error: "Account not found" }, { status: 400 })
+    }
+
+    // Get username
+    const profileRes = await fetch(`https://graph.facebook.com/v24.0/${selectedAccountId}?fields=username&access_token=${selected.token}`)
+    const profileData = await profileRes.json()
+
+    const result = await saveAccount({
+      igAccountId: selectedAccountId,
+      username: profileData.username || "user",
+      pageAccessToken: selected.token,
+    }, expiresIn)
+
+    const response = NextResponse.json({ success: true, username: result.username, userId: result.userId })
+    setSessionCookies(response, result.username, result.userId, result.expiresIn)
+
+    // Clear pending cookies
+    response.cookies.set("pending_accounts", "", { path: "/", maxAge: 0 })
+    response.cookies.set("pending_tokens", "", { path: "/", maxAge: 0 })
+    response.cookies.set("pending_expires", "", { path: "/", maxAge: 0 })
+
+    return response
+  } catch (error: any) {
+    console.error("[callback] POST Error:", error.message)
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
 }
