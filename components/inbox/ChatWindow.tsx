@@ -102,9 +102,9 @@ export function ChatWindow({ conversationId, recipientId, recipientName, userId,
                     <Send className="w-6 h-6 text-muted-foreground" />
                 </div>
                 <div>
-                    <h3 className="text-lg font-bold text-white">Your Messages</h3>
+                    <h3 className="text-lg font-bold text-white">Suas Mensagens</h3>
                     <p className="text-muted-foreground text-sm max-w-xs mx-auto mt-2">
-                        Select a conversation from the left to start chatting live with your audience.
+                        Selecione uma conversa ao lado para comecar a conversar ao vivo com seu publico.
                     </p>
                 </div>
             </div>
@@ -151,13 +151,13 @@ export function ChatWindow({ conversationId, recipientId, recipientName, userId,
                                 <div className={cn(
                                     "max-w-[85%] md:max-w-[70%] rounded-2xl px-4 py-3 text-sm shadow-sm break-words",
                                     isMe
-                                        ? "bg-[#ffe14d] text-black rounded-br-none"
+                                        ? "bg-[#3b82f6] text-white rounded-br-none"
                                         : "bg-white/10 text-white rounded-bl-none border border-white/5"
                                 )}>
                                     {msg.content}
                                     <div className={cn(
                                         "text-[10px] mt-1 opacity-70",
-                                        isMe ? "text-black/50 text-right" : "text-neutral-500"
+                                        isMe ? "text-white/50 text-right" : "text-neutral-500"
                                     )}>
                                         {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                     </div>
@@ -172,7 +172,7 @@ export function ChatWindow({ conversationId, recipientId, recipientName, userId,
             {/* Automation Popup */}
             {isAutomationOpen && (
                 <div className="absolute bottom-20 left-4 right-4 md:left-auto md:right-4 md:w-80 bg-black/90 border border-white/10 rounded-xl shadow-2xl backdrop-blur-xl p-2 z-50">
-                    <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Quick Responses</div>
+                    <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Respostas Rapidas</div>
                     <div className="max-h-60 overflow-y-auto space-y-1">
                         {automations.map(auto => (
                             <button
@@ -180,12 +180,12 @@ export function ChatWindow({ conversationId, recipientId, recipientName, userId,
                                 onClick={() => handleSendMessage(auto.response_content?.message || auto.name)}
                                 className="w-full text-left px-3 py-2 rounded-lg hover:bg-white/10 text-sm text-white transition-colors flex items-center gap-2"
                             >
-                                <Zap className="w-3 h-3 text-yellow-400" />
+                                <Zap className="w-3 h-3 text-blue-400" />
                                 <span className="truncate">{auto.name}</span>
                             </button>
                         ))}
                         {automations.length === 0 && (
-                            <div className="px-3 py-4 text-center text-muted-foreground text-xs">No automations found.</div>
+                            <div className="px-3 py-4 text-center text-muted-foreground text-xs">Nenhuma automacao encontrada.</div>
                         )}
                     </div>
                 </div>
@@ -193,18 +193,18 @@ export function ChatWindow({ conversationId, recipientId, recipientName, userId,
 
             {/* Input Area */}
             <div className="p-3 md:p-4 border-t border-white/5 bg-black/40 shrink-0">
-                <div className="flex items-center gap-2 bg-white/5 rounded-xl border border-white/10 p-1.5 focus-within:border-[#ffe14d]/50 transition-all">
+                <div className="flex items-center gap-2 bg-white/5 rounded-xl border border-white/10 p-1.5 focus-within:border-[#3b82f6]/50 transition-all">
                     <Button
                         size="icon"
                         variant="ghost"
                         onClick={() => setIsAutomationOpen(!isAutomationOpen)}
-                        className={cn("h-9 w-9 hover:bg-white/10 text-muted-foreground hover:text-yellow-400 transition-colors shrink-0", isAutomationOpen && "text-yellow-400 bg-yellow-400/10")}
+                        className={cn("h-9 w-9 hover:bg-white/10 text-muted-foreground hover:text-blue-400 transition-colors shrink-0", isAutomationOpen && "text-blue-400 bg-blue-400/10")}
                     >
                         <Zap className="w-5 h-5" />
                     </Button>
                     <input
                         className="flex-1 bg-transparent px-3 py-2 text-sm text-white focus:outline-none placeholder:text-muted-foreground/50 min-w-0"
-                        placeholder="Type a message..."
+                        placeholder="Digite uma mensagem..."
                         value={inputText}
                         onChange={(e) => setInputText(e.target.value)}
                         onKeyDown={(e) => {
@@ -219,7 +219,7 @@ export function ChatWindow({ conversationId, recipientId, recipientName, userId,
                         onClick={() => handleSendMessage()}
                         disabled={sending || !inputText.trim()}
                         size="icon"
-                        className="h-9 w-9 bg-[#ffe14d] hover:brightness-95 text-black rounded-lg disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+                        className="h-9 w-9 bg-[#3b82f6] hover:brightness-110 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
                     >
                         {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                     </Button>

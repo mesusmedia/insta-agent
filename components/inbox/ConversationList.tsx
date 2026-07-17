@@ -46,12 +46,12 @@ export function ConversationList({ userId, selectedId, onSelect }: ConversationL
     return (
         <div className="flex flex-col h-full border-r border-white/5 bg-black/20 w-full md:w-[350px]">
             <div className="p-4 border-b border-white/5">
-                <h2 className="text-lg font-bold text-white mb-4">Inbox</h2>
+                <h2 className="text-lg font-bold text-white mb-4">Caixa de Entrada</h2>
                 <div className="relative">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <input
-                        className="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-2 text-sm text-white focus:outline-none focus:border-[#ffe14d]/50 placeholder:text-muted-foreground/50 transition-all"
-                        placeholder="Search messages..."
+                        className="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-2 text-sm text-white focus:outline-none focus:border-[#3b82f6]/50 placeholder:text-muted-foreground/50 transition-all"
+                        placeholder="Buscar mensagens..."
                     />
                 </div>
             </div>
@@ -59,7 +59,7 @@ export function ConversationList({ userId, selectedId, onSelect }: ConversationL
             <div className="flex-1 overflow-y-auto p-2 space-y-1">
                 {conversations.length === 0 ? (
                     <div className="text-center py-10 text-muted-foreground text-sm">
-                        No conversations yet.
+                        Nenhuma conversa ainda.
                     </div>
                 ) : (
                     conversations.map((conv) => (
@@ -69,7 +69,7 @@ export function ConversationList({ userId, selectedId, onSelect }: ConversationL
                             className={cn(
                                 "p-3 rounded-lg flex items-center gap-3 cursor-pointer transition-colors border border-transparent",
                                 selectedId === conv.id
-                                    ? "bg-[#ffe14d]/[0.06] border-[#ffe14d]/20"
+                                    ? "bg-[#3b82f6]/[0.06] border-[#3b82f6]/20"
                                     : "hover:bg-white/5 hover:border-white/5"
                             )}
                         >
@@ -80,7 +80,7 @@ export function ConversationList({ userId, selectedId, onSelect }: ConversationL
                                 <div className="flex items-center justify-between mb-0.5">
                                     <span className={cn(
                                         "font-semibold text-sm truncate",
-                                        selectedId === conv.id ? "text-[#ffe14d]" : "text-white"
+                                        selectedId === conv.id ? "text-[#3b82f6]" : "text-white"
                                     )}>
                                         {conv.recipient_username}
                                     </span>
@@ -89,7 +89,7 @@ export function ConversationList({ userId, selectedId, onSelect }: ConversationL
                                     </span>
                                 </div>
                                 <p className="text-xs text-muted-foreground truncate">
-                                    Open to view conversation
+                                    Abrir para ver a conversa
                                 </p>
                             </div>
                         </div>

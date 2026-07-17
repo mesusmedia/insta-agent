@@ -61,54 +61,54 @@ export default function DashboardPage() {
             {/* Welcome Section */}
             <div className="flex items-center justify-between">
                 <div>
-                    <p className="font-mono-ui text-[10px] uppercase tracking-[0.3em] text-neutral-600 mb-2">Overview</p>
-                    <h1 className="font-serif-display text-4xl md:text-5xl text-white leading-none">Hey, {username}.</h1>
-                    <p className="text-neutral-500 text-sm mt-3">Here's what your automations did while you were away.</p>
+                    <p className="font-mono-ui text-[10px] uppercase tracking-[0.3em] text-neutral-600 mb-2">Visao Geral</p>
+                    <h1 className="font-serif-display text-4xl md:text-5xl text-white leading-none">Ola, {username}.</h1>
+                    <p className="text-neutral-500 text-sm mt-3">Veja o que suas automacoes fizeram enquanto voce estava fora.</p>
                 </div>
             </div>
 
             {/* Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <StatCard
-                    title="Total Automations"
+                    title="Total de Automacoes"
                     value={stats?.metrics.totalAutomations.toString() || "0"}
-                    trend="Active"
-                    icon={<Zap className="w-5 h-5 text-[#ffe14d]" />}
+                    trend="Ativas"
+                    icon={<Zap className="w-5 h-5 text-[#3b82f6]" />}
                 />
                 <StatCard
-                    title="Messages Sent"
+                    title="Mensagens Enviadas"
                     value={stats?.metrics.messagesSent.toString() || "0"}
-                    trend="Lifetime"
-                    icon={<MessageCircle className="w-5 h-5 text-[#ffe14d]" />}
+                    trend="Total"
+                    icon={<MessageCircle className="w-5 h-5 text-[#3b82f6]" />}
                 />
                 <StatCard
-                    title="Active Triggers"
+                    title="Gatilhos Ativos"
                     value={stats?.metrics.activeTriggers.toString() || "0"}
-                    trend="Running"
-                    icon={<Activity className="w-5 h-5 text-[#ffe14d]" />}
+                    trend="Em Execucao"
+                    icon={<Activity className="w-5 h-5 text-[#3b82f6]" />}
                 />
                 <StatCard
-                    title="Audience Reached"
+                    title="Audiencia Alcancada"
                     value={stats?.metrics.audienceReached.toString() || "0"}
-                    trend="Unique Users"
-                    icon={<Users className="w-5 h-5 text-[#ffe14d]" />}
+                    trend="Usuarios Unicos"
+                    icon={<Users className="w-5 h-5 text-[#3b82f6]" />}
                 />
             </div>
 
             {/* Recent Activity */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <Card className="p-6 bg-[#0b0b0a] border-white/10">
-                    <h3 className="font-serif-display text-2xl text-white mb-5">Recent activity</h3>
+                <Card className="p-6 bg-[#111114] border-white/10">
+                    <h3 className="font-serif-display text-2xl text-white mb-5">Atividade recente</h3>
                     <div className="space-y-4">
                         {stats?.recentActivity && stats.recentActivity.length > 0 ? (
                             stats.recentActivity.map((msg) => (
                                 <div key={msg.id} className="flex items-center gap-4 p-3 rounded-lg hover:bg-white/5 transition-colors">
-                                    <div className="w-10 h-10 rounded-full bg-[#ffe14d]/10 flex items-center justify-center text-[#ffe14d] shrink-0">
+                                    <div className="w-10 h-10 rounded-full bg-[#3b82f6]/10 flex items-center justify-center text-[#3b82f6] shrink-0">
                                         <MessageCircle className="w-5 h-5" />
                                     </div>
                                     <div className="min-w-0">
                                         <p className="text-sm text-white font-medium truncate">
-                                            Auto-reply to @{msg.recipient?.recipient_username || "user"}
+                                            Resposta automatica para @{msg.recipient?.recipient_username || "usuario"}
                                         </p>
                                         <p className="text-xs text-muted-foreground truncate w-full max-w-[300px]">{msg.content}</p>
                                     </div>
@@ -119,22 +119,22 @@ export default function DashboardPage() {
                             ))
                         ) : (
                             <div className="py-8 text-center text-muted-foreground text-sm">
-                                No recent activity found.
+                                Nenhuma atividade recente encontrada.
                             </div>
                         )}
                     </div>
                 </Card>
 
-                <Card className="p-6 bg-[#0b0b0a] border-white/10">
-                    <h3 className="font-serif-display text-2xl text-white mb-5">Quick actions</h3>
+                <Card className="p-6 bg-[#111114] border-white/10">
+                    <h3 className="font-serif-display text-2xl text-white mb-5">Acoes rapidas</h3>
                     <div className="grid grid-cols-2 gap-4">
                         <div className="h-24 rounded-xl border border-dashed border-white/20 flex flex-col items-center justify-center hover:bg-white/5 cursor-pointer transition-colors group">
-                            <Zap className="w-6 h-6 text-muted-foreground group-hover:text-[#ffe14d] mb-2" />
-                            <span className="text-xs font-medium text-muted-foreground">New Rule</span>
+                            <Zap className="w-6 h-6 text-muted-foreground group-hover:text-[#3b82f6] mb-2" />
+                            <span className="text-xs font-medium text-muted-foreground">Nova Regra</span>
                         </div>
                         <div className="h-24 rounded-xl border border-dashed border-white/20 flex flex-col items-center justify-center hover:bg-white/5 cursor-pointer transition-colors group">
-                            <Users className="w-6 h-6 text-muted-foreground group-hover:text-[#ffe14d] mb-2" />
-                            <span className="text-xs font-medium text-muted-foreground">View Audience</span>
+                            <Users className="w-6 h-6 text-muted-foreground group-hover:text-[#3b82f6] mb-2" />
+                            <span className="text-xs font-medium text-muted-foreground">Ver Audiencia</span>
                         </div>
                     </div>
                 </Card>
@@ -145,7 +145,7 @@ export default function DashboardPage() {
 
 function StatCard({ title, value, trend, icon }: { title: string, value: string, trend: string, icon: React.ReactNode }) {
     return (
-        <div className="p-6 rounded-2xl border border-white/10 bg-[#0b0b0a] hover:border-white/20 transition-colors group">
+        <div className="p-6 rounded-2xl border border-white/10 bg-[#111114] hover:border-white/20 transition-colors group">
             <div className="flex items-start justify-between">
                 {icon}
                 <span className="font-mono-ui text-[10px] uppercase tracking-widest text-neutral-600">{trend}</span>

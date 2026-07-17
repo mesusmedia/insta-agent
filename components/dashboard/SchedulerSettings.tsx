@@ -68,13 +68,13 @@ export function SchedulerSettings({ userId }: SchedulerSettingsProps) {
             })
 
             if (res.ok) {
-                toast.success("Scheduler settings saved")
+                toast.success("Configuracoes do agendador salvas")
                 loadSettings() // reload to get calculated next_run
             } else {
-                toast.error("Failed to save settings")
+                toast.error("Falha ao salvar configuracoes")
             }
         } catch (err) {
-            toast.error("Network error")
+            toast.error("Erro de conexao")
         } finally {
             setSaving(false)
         }
@@ -87,15 +87,15 @@ export function SchedulerSettings({ userId }: SchedulerSettingsProps) {
             <div className="flex items-center justify-between">
                 <div>
                     <h3 className="text-lg font-medium text-white flex items-center gap-2">
-                        <Calendar className="w-5 h-5" /> Schedule Configuration
+                        <Calendar className="w-5 h-5" /> Configuracao de Agendamento
                     </h3>
                     <p className="text-sm text-neutral-500">
-                        Automate posting based on time intervals.
+                        Automatize publicacoes com base em intervalos de tempo.
                     </p>
                 </div>
                 <div className="flex items-center gap-3">
                     <Label htmlFor="scheduler-toggle" className="text-sm font-medium">
-                        {enabled ? "Active" : "Paused"}
+                        {enabled ? "Ativo" : "Pausado"}
                     </Label>
                     <Switch
                         id="scheduler-toggle"
@@ -107,7 +107,7 @@ export function SchedulerSettings({ userId }: SchedulerSettingsProps) {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                    <Label>Post Frequency</Label>
+                    <Label>Frequencia de Publicacao</Label>
                     <div className="flex gap-2">
                         <Input
                             type="number"
@@ -115,15 +115,15 @@ export function SchedulerSettings({ userId }: SchedulerSettingsProps) {
                             onChange={(e) => setInterval((parseFloat(e.target.value) * 60).toString())}
                             className="bg-black/20"
                         />
-                        <div className="flex items-center text-neutral-400 text-sm">hours</div>
+                        <div className="flex items-center text-neutral-400 text-sm">horas</div>
                     </div>
                     <p className="text-xs text-neutral-500">
-                        (Approx {interval} minutes)
+                        (Aprox. {interval} minutos)
                     </p>
                 </div>
 
                 <div className="space-y-2">
-                    <Label>Active Hours (Time Range)</Label>
+                    <Label>Horario Ativo (Faixa de Horario)</Label>
                     <div className="flex items-center gap-2">
                         <Input
                             type="time"
@@ -131,7 +131,7 @@ export function SchedulerSettings({ userId }: SchedulerSettingsProps) {
                             onChange={(e) => setStartTime(e.target.value)}
                             className="bg-black/20"
                         />
-                        <span className="text-neutral-500">to</span>
+                        <span className="text-neutral-500">ate</span>
                         <Input
                             type="time"
                             value={endTime}
@@ -140,7 +140,7 @@ export function SchedulerSettings({ userId }: SchedulerSettingsProps) {
                         />
                     </div>
                     <p className="text-xs text-neutral-500">
-                        Posts will only run within this window.
+                        As publicacoes so ocorrem dentro desta janela.
                     </p>
                 </div>
             </div>
@@ -150,10 +150,10 @@ export function SchedulerSettings({ userId }: SchedulerSettingsProps) {
                     <Clock className="w-5 h-5 text-blue-400 mt-0.5" />
                     <div>
                         <p className="text-sm text-blue-200 font-medium">
-                            Next scheduled run: {new Date(nextRun).toLocaleString()}
+                            Proxima execucao agendada: {new Date(nextRun).toLocaleString()}
                         </p>
                         <p className="text-xs text-blue-300/70">
-                            Next Clip Sequence: #{currentIndex}
+                            Proximo Clip na Sequencia: #{currentIndex}
                         </p>
                     </div>
                 </div>
@@ -161,14 +161,14 @@ export function SchedulerSettings({ userId }: SchedulerSettingsProps) {
 
             <div className="pt-4 border-t border-white/10 flex justify-end">
                 <Button onClick={handleSave} disabled={saving} className="min-w-[100px]">
-                    {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : "Save Changes"}
+                    {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : "Salvar Alteracoes"}
                 </Button>
             </div>
 
             <div className="bg-yellow-500/5 border border-yellow-500/10 rounded-lg p-3 flex gap-3 items-center">
                 <AlertTriangle className="w-5 h-5 text-yellow-500" />
                 <p className="text-xs text-yellow-200/80">
-                    Note: This automation requires the application to remain active or a background cron job to be configured hitting <code>/api/scheduler</code>.
+                    Nota: Esta automacao requer que a aplicacao permaneca ativa ou que um cron job em segundo plano esteja configurado acessando <code>/api/scheduler</code>.
                 </p>
             </div>
         </div>

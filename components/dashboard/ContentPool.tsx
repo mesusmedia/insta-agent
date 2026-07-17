@@ -83,7 +83,7 @@ export function ContentPool({ userId }: ContentPoolProps) {
                 setItems(data)
             }
         } catch (err) {
-            toast.error("Failed to load content pool")
+            toast.error("Falha ao carregar pool de conteudo")
         } finally {
             setLoading(false)
         }
@@ -101,17 +101,17 @@ export function ContentPool({ userId }: ContentPoolProps) {
                 const onlyReels = allImport.filter((m: any) => m.media_type === "VIDEO" || m.media_type === "REELS")
                 setIgMedia(onlyReels)
             } else {
-                toast.error("Failed to fetch media")
+                toast.error("Falha ao buscar midia")
             }
         } catch (err) {
-            toast.error("Error loading Instagram media")
+            toast.error("Erro ao carregar midia do Instagram")
         } finally {
             setLoadingIg(false)
         }
     }
 
     const loadSpyMedia = async () => {
-        if (!spyTarget) return toast.error("Enter a username")
+        if (!spyTarget) return toast.error("Digite um nome de usuario")
         try {
             setLoadingSpy(true)
             let url = `/api/instagram/discovery?userId=${userId}&target=${spyTarget}&limit=${spyLimit}`
@@ -131,12 +131,12 @@ export function ContentPool({ userId }: ContentPoolProps) {
                 const onlyReels = allImport.filter((m: any) => m.media_type === "VIDEO" || m.media_type === "REELS")
                 setIgMedia(onlyReels)
 
-                if (onlyReels.length === 0) toast.info("No reels found (Images filtered out)")
+                if (onlyReels.length === 0) toast.info("Nenhum reel encontrado (imagens filtradas)")
             } else {
-                toast.error(data.error || "Failed to spy")
+                toast.error(data.error || "Falha na analise")
             }
         } catch (err) {
-            toast.error("Spy failed")
+            toast.error("Analise falhou")
         } finally {
             setLoadingSpy(false)
         }
@@ -276,7 +276,7 @@ export function ContentPool({ userId }: ContentPoolProps) {
                     })
                     if (res.ok) successCount++
                 }
-                toast.success(`Imported ${successCount} items from JSON`)
+                toast.success(`${successCount} itens importados do JSON`)
             }
 
             // 2. Instagram & Spy Import (Both populate igMedia)
@@ -335,7 +335,7 @@ export function ContentPool({ userId }: ContentPoolProps) {
                         addLog("✅ Item Imported to DB")
                     }
                 }
-                toast.success(`Import complete!`)
+                toast.success(`Importacao concluida!`)
                 setSelectedIgMedia([])
             }
 
@@ -348,16 +348,16 @@ export function ContentPool({ userId }: ContentPoolProps) {
                     body: JSON.stringify({ userId, videoUrl: manualUrl, caption })
                 })
                 if (res.ok) {
-                    toast.success("URL imported successfully")
+                    toast.success("URL importada com sucesso")
                     setManualUrl("")
                 } else {
-                    toast.error("Import failed")
+                    toast.error("Falha na importacao")
                 }
             }
 
             // 4. File Upload (Client-side)
             else if (inputType === "file") {
-                if (files.length === 0) return toast.error("No files selected")
+                if (files.length === 0) return toast.error("Nenhum arquivo selecionado")
 
                 for (let i = 0; i < files.length; i++) {
                     const file = files[i]
@@ -390,7 +390,7 @@ export function ContentPool({ userId }: ContentPoolProps) {
 
                     if (!res.ok) throw new Error("Db Error")
                 }
-                toast.success(`Uploaded ${files.length} files`)
+                toast.success(`${files.length} arquivos enviados`)
                 setFiles([])
             }
 
@@ -402,7 +402,7 @@ export function ContentPool({ userId }: ContentPoolProps) {
             loadPool()
 
         } catch (err: any) {
-            toast.error("Process failed", { description: err.message })
+            toast.error("Processo falhou", { description: err.message })
         } finally {
             setUploading(false)
             setProgress("")
@@ -413,11 +413,11 @@ export function ContentPool({ userId }: ContentPoolProps) {
         try {
             const res = await fetch(`/api/scheduler/pool?id=${itemId}`, { method: 'DELETE' })
             if (res.ok) {
-                toast.success("Clip removed")
+                toast.success("Clip removido")
                 loadPool()
             }
         } catch (err) {
-            toast.error("Failed to delete clip")
+            toast.error("Falha ao remover clip")
         }
     }
 
@@ -425,13 +425,13 @@ export function ContentPool({ userId }: ContentPoolProps) {
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <div>
-                    <h3 className="text-lg font-medium text-white">Content Pool</h3>
+                    <h3 className="text-lg font-medium text-white">Pool de Conteudo</h3>
                     <p className="text-sm text-neutral-500">
-                        Manage your reels queue.
+                        Gerencie sua fila de reels.
                     </p>
                 </div>
                 <Button onClick={() => setIsAdding(!isAdding)} variant={isAdding ? "secondary" : "default"}>
-                    {isAdding ? "Cancel" : <><Plus className="w-4 h-4 mr-2" /> Add Clips</>}
+                    {isAdding ? "Cancelar" : <><Plus className="w-4 h-4 mr-2" /> Adicionar Clips</>}
                 </Button>
             </div>
 
@@ -444,9 +444,9 @@ export function ContentPool({ userId }: ContentPoolProps) {
                             if (v === 'spy') setIgMedia([]) // Clear for spy search
                         }}>
                             <TabsList className="grid w-full grid-cols-5 bg-black/40">
-                                <TabsTrigger value="file">Files</TabsTrigger>
-                                <TabsTrigger value="instagram">My Reels</TabsTrigger>
-                                <TabsTrigger value="spy">Spy / Analyze</TabsTrigger>
+                                <TabsTrigger value="file">Arquivos</TabsTrigger>
+                                <TabsTrigger value="instagram">Meus Reels</TabsTrigger>
+                                <TabsTrigger value="spy">Espiar / Analisar</TabsTrigger>
                                 <TabsTrigger value="url">Link</TabsTrigger>
                                 <TabsTrigger value="json">JSON</TabsTrigger>
                             </TabsList>
@@ -464,7 +464,7 @@ export function ContentPool({ userId }: ContentPoolProps) {
                                     <div className="flex flex-col items-center gap-2">
                                         <Upload className="w-8 h-8 text-neutral-400" />
                                         <p className="text-sm text-neutral-300">
-                                            {files.length > 0 ? `${files.length} files selected` : "Select MP4 Files"}
+                                            {files.length > 0 ? `${files.length} arquivos selecionados` : "Selecionar Arquivos MP4"}
                                         </p>
                                     </div>
                                 </div>
@@ -478,7 +478,7 @@ export function ContentPool({ userId }: ContentPoolProps) {
                                     <MediaGrid media={igMedia} selected={selectedIgMedia} onToggle={toggleIgSelection} />
                                 )}
                                 <p className="text-xs text-neutral-500 mt-2 text-center">
-                                    {selectedIgMedia.length} items selected
+                                    {selectedIgMedia.length} itens selecionados
                                 </p>
                             </TabsContent>
 
@@ -486,18 +486,18 @@ export function ContentPool({ userId }: ContentPoolProps) {
                             <TabsContent value="spy" className="space-y-4 pt-4">
                                 <div className="flex gap-2">
                                     <Input
-                                        placeholder="Target username (e.g. 'instagram')"
+                                        placeholder="Nome de usuario alvo (ex: 'instagram')"
                                         className="bg-black/50 border-white/10 flex-1"
                                         value={spyTarget}
                                         onChange={(e) => setSpyTarget(e.target.value)}
                                     />
                                     <Input
                                         type="number"
-                                        placeholder="Limit"
+                                        placeholder="Limite"
                                         className="bg-black/50 border-white/10 w-20"
                                         value={spyLimit}
                                         onChange={(e) => setSpyLimit(parseInt(e.target.value) || 0)}
-                                        title="Max posts to fetch"
+                                        title="Maximo de posts para buscar"
                                     />
                                     <Button onClick={() => loadSpyMedia()} disabled={loadingSpy || !spyTarget}>
                                         {loadingSpy ? <Loader2 className="animate-spin" /> : <Search className="w-4 h-4" />}
@@ -507,7 +507,7 @@ export function ContentPool({ userId }: ContentPoolProps) {
                                         size="icon"
                                         onClick={() => setShowTokenInput(!showTokenInput)}
                                         className="text-neutral-500 hover:text-white"
-                                        title="Advanced Options"
+                                        title="Opcoes Avancadas"
                                     >
                                         <LinkIcon className="w-4 h-4" />
                                     </Button>
@@ -518,13 +518,13 @@ export function ContentPool({ userId }: ContentPoolProps) {
                                         <>
                                             <Input
                                                 type="password"
-                                                placeholder="Paste Manual Access Token (Optional)"
+                                                placeholder="Cole o Token de Acesso Manual (Opcional)"
                                                 value={manualToken}
                                                 onChange={(e) => setManualToken(e.target.value)}
                                                 className="text-xs font-mono bg-black/20 border-white/10"
                                             />
                                             <Input
-                                                placeholder="Manual Business ID (Optional)"
+                                                placeholder="Business ID Manual (Opcional)"
                                                 value={manualBusinessId}
                                                 onChange={(e) => setManualBusinessId(e.target.value)}
                                                 className="text-xs font-mono bg-black/20 border-white/10 mt-2"
@@ -540,22 +540,22 @@ export function ContentPool({ userId }: ContentPoolProps) {
                                             className="w-4 h-4 accent-green-500 cursor-pointer"
                                         />
                                         <div className="flex flex-col">
-                                            <span className="text-sm font-bold text-green-400">Enable Safe Mode (Remix)</span>
-                                            <span className="text-[10px] text-neutral-400">Zooms & Adjusts speed to bypass 'Duplicate Content' filters. (Slower)</span>
+                                            <span className="text-sm font-bold text-green-400">Ativar Modo Seguro (Remix)</span>
+                                            <span className="text-[10px] text-neutral-400">Zoom e ajuste de velocidade para evitar filtros de 'Conteudo Duplicado'. (Mais lento)</span>
                                         </div>
                                     </div>
 
                                     {(igMedia.length > 0) && (inputType === "instagram" || inputType === "spy") && (
                                         <div className="space-y-2">
                                             <div className="flex justify-between items-center px-1">
-                                                <span className="text-xs text-neutral-400">{igMedia.length} posts found</span>
+                                                <span className="text-xs text-neutral-400">{igMedia.length} posts encontrados</span>
                                                 <Button
                                                     variant="ghost"
                                                     size="sm"
                                                     onClick={selectAllMedia}
                                                     className="h-6 text-xs text-blue-400 hover:text-blue-300 hover:bg-transparent p-0"
                                                 >
-                                                    {selectedIgMedia.length === igMedia.length ? "Deselect All" : "Select All"}
+                                                    {selectedIgMedia.length === igMedia.length ? "Desmarcar Todos" : "Selecionar Todos"}
                                                 </Button>
                                             </div>
                                             <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 max-h-[300px] overflow-y-auto p-2 bg-black/20 rounded-lg">
@@ -599,7 +599,7 @@ export function ContentPool({ userId }: ContentPoolProps) {
                                     <MediaGrid media={igMedia} selected={selectedIgMedia} onToggle={toggleIgSelection} />
                                 )}
                                 <p className="text-xs text-neutral-500 mt-2 text-center">
-                                    {selectedIgMedia.length} items selected
+                                    {selectedIgMedia.length} itens selecionados
                                 </p>
                             </TabsContent>
 
@@ -624,12 +624,12 @@ export function ContentPool({ userId }: ContentPoolProps) {
                                     value={jsonInput}
                                     onChange={(e) => setJsonInput(e.target.value)}
                                 />
-                                <p className="text-xs text-neutral-500 mt-1">Paste a JSON array of objects with video_url and caption.</p>
+                                <p className="text-xs text-neutral-500 mt-1">Cole um array JSON de objetos com video_url e caption.</p>
                             </TabsContent>
                         </Tabs>
 
                         <Textarea
-                            placeholder="Shared caption (optional). Overrides individual captions."
+                            placeholder="Legenda compartilhada (opcional). Substitui legendas individuais."
                             value={caption}
                             onChange={(e) => setCaption(e.target.value)}
                             className="bg-black/20 border-white/10"
@@ -639,10 +639,10 @@ export function ContentPool({ userId }: ContentPoolProps) {
                             {uploading ? (
                                 <>
                                     <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                                    {progress || "Processing..."}
+                                    {progress || "Processando..."}
                                 </>
                             ) : (
-                                "Start Import / Upload"
+                                "Iniciar Importacao / Upload"
                             )}
                         </Button>
                     </CardContent>
@@ -656,7 +656,7 @@ export function ContentPool({ userId }: ContentPoolProps) {
             ) : items.length === 0 ? (
                 <div className="text-center py-10 border border-dashed border-white/10 rounded-xl">
                     <Film className="w-10 h-10 mx-auto text-neutral-600 mb-3" />
-                    <p className="text-neutral-500">No clips in the pool yet.</p>
+                    <p className="text-neutral-500">Nenhum clip no pool ainda.</p>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -675,7 +675,7 @@ export function ContentPool({ userId }: ContentPoolProps) {
 
                             <div className="p-3">
                                 <p className="text-sm text-white line-clamp-2 min-h-[40px]">
-                                    {item.caption || "No caption"}
+                                    {item.caption || "Sem legenda"}
                                 </p>
                                 <div className="flex justify-end mt-2">
                                     <Button
@@ -697,7 +697,7 @@ export function ContentPool({ userId }: ContentPoolProps) {
 }
 
 function MediaGrid({ media, selected, onToggle }: { media: ExternalMedia[], selected: string[], onToggle: (id: string) => void }) {
-    if (media.length === 0) return <div className="text-center py-8 text-neutral-500">No media found.</div>
+    if (media.length === 0) return <div className="text-center py-8 text-neutral-500">Nenhuma midia encontrada.</div>
     return (
         <div className="grid grid-cols-3 gap-2 max-h-[300px] overflow-y-auto pr-2">
             {media.map(item => {

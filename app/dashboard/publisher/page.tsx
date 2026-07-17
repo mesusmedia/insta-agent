@@ -46,7 +46,7 @@ export default function PublisherPage() {
                     <div className="sticky top-6">
                         <SchedulerSettings userId={userId} />
 
-                        <Card className="mt-6 bg-[#0b0b0a] border-white/10">
+                        <Card className="mt-6 bg-[#111114] border-white/10">
                             <CardHeader>
                                 <CardTitle className="text-lg text-white">Automation Tips</CardTitle>
                             </CardHeader>

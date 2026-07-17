@@ -1,87 +1,87 @@
-@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Minimal B/W Theme */
-  --background: oklch(0.05 0 0); /* Pure black */
-  --foreground: oklch(0.98 0 0); /* White */
-  --accent-yellow: #ffe14d;
-  
-  --card: oklch(0.08 0 0);
-  --card-foreground: oklch(0.98 0 0);
-  
-  --popover: oklch(0.08 0 0);
-  --popover-foreground: oklch(0.98 0 0);
+  /* Insta Agent — Premium Dark Theme */
+  --background: #09090b;
+  --foreground: #fafafa;
+  --accent-primary: #3b82f6;
+
+  --card: #111114;
+  --card-foreground: #fafafa;
+
+  --popover: #111114;
+  --popover-foreground: #fafafa;
 
   /* Primary is now White for high contrast */
-  --primary: oklch(0.98 0 0);
-  --primary-foreground: oklch(0.05 0 0);
+  --primary: #fafafa;
+  --primary-foreground: #09090b;
 
   /* Secondary is Dark Gray */
-  --secondary: oklch(0.2 0 0);
-  --secondary-foreground: oklch(0.98 0 0);
+  --secondary: #1e1e22;
+  --secondary-foreground: #fafafa;
 
-  --muted: oklch(0.15 0 0);
-  --muted-foreground: oklch(0.6 0 0);
-  
-  --accent: oklch(0.15 0 0);
-  --accent-foreground: oklch(0.98 0 0);
+  --muted: #18181b;
+  --muted-foreground: #a1a1aa;
 
-  --destructive: oklch(0.5 0.2 27); /* Keeping red for errors but slightly desaturated */
-  --destructive-foreground: oklch(0.98 0 0);
+  --accent: #18181b;
+  --accent-foreground: #fafafa;
 
-  --border: oklch(0.15 0 0);
-  --input: oklch(0.15 0 0);
-  --ring: oklch(0.25 0 0);
+  --destructive: #ef4444;
+  --destructive-foreground: #fafafa;
+
+  --border: rgba(255, 255, 255, 0.08);
+  --input: #18181b;
+  --ring: #3b82f6;
 
   --radius: 0.5rem;
 
-  --sidebar: oklch(0.05 0 0);
-  --sidebar-foreground: oklch(0.7 0 0);
-  --sidebar-primary: oklch(0.98 0 0);
-  --sidebar-border: oklch(0.12 0 0);
-  --sidebar-accent: oklch(0.12 0 0);
-  --sidebar-accent-foreground: oklch(0.98 0 0);
-  --sidebar-ring: oklch(0.25 0 0);
+  --sidebar: #09090b;
+  --sidebar-foreground: #a1a1aa;
+  --sidebar-primary: #fafafa;
+  --sidebar-border: rgba(255, 255, 255, 0.08);
+  --sidebar-accent: rgba(255, 255, 255, 0.06);
+  --sidebar-accent-foreground: #fafafa;
+  --sidebar-ring: #3b82f6;
 }
 
 .dark {
-  /* Same as root since we are enforcing Dark Mode B/W */
-  --background: oklch(0.05 0 0);
-  --foreground: oklch(0.98 0 0);
-  --card: oklch(0.08 0 0);
-  --card-foreground: oklch(0.98 0 0);
-  --popover: oklch(0.08 0 0);
-  --popover-foreground: oklch(0.98 0 0);
-  --primary: oklch(0.98 0 0);
-  --primary-foreground: oklch(0.05 0 0);
-  --secondary: oklch(0.2 0 0);
-  --secondary-foreground: oklch(0.98 0 0);
-  --muted: oklch(0.15 0 0);
-  --muted-foreground: oklch(0.6 0 0);
-  --accent: oklch(0.15 0 0);
-  --accent-foreground: oklch(0.98 0 0);
-  --destructive: oklch(0.5 0.2 27);
-  --destructive-foreground: oklch(0.98 0 0);
-  --border: oklch(0.15 0 0);
-  --input: oklch(0.15 0 0);
-  --ring: oklch(0.25 0 0);
-  --sidebar: oklch(0.05 0 0);
-  --sidebar-foreground: oklch(0.7 0 0);
-  --sidebar-primary: oklch(0.98 0 0);
-  --sidebar-primary-foreground: oklch(0.05 0 0);
-  --sidebar-accent: oklch(0.12 0 0);
-  --sidebar-accent-foreground: oklch(0.98 0 0);
-  --sidebar-border: oklch(0.12 0 0);
-  --sidebar-ring: oklch(0.25 0 0);
+  /* Same as root since we are enforcing Dark Mode */
+  --background: #09090b;
+  --foreground: #fafafa;
+  --card: #111114;
+  --card-foreground: #fafafa;
+  --popover: #111114;
+  --popover-foreground: #fafafa;
+  --primary: #fafafa;
+  --primary-foreground: #09090b;
+  --secondary: #1e1e22;
+  --secondary-foreground: #fafafa;
+  --muted: #18181b;
+  --muted-foreground: #a1a1aa;
+  --accent: #18181b;
+  --accent-foreground: #fafafa;
+  --destructive: #ef4444;
+  --destructive-foreground: #fafafa;
+  --border: rgba(255, 255, 255, 0.08);
+  --input: #18181b;
+  --ring: #3b82f6;
+  --sidebar: #09090b;
+  --sidebar-foreground: #a1a1aa;
+  --sidebar-primary: #fafafa;
+  --sidebar-primary-foreground: #09090b;
+  --sidebar-accent: rgba(255, 255, 255, 0.06);
+  --sidebar-accent-foreground: #fafafa;
+  --sidebar-border: rgba(255, 255, 255, 0.08);
+  --sidebar-ring: #3b82f6;
 }
 
 @theme inline {
-  --font-sans: "Geist", "Geist Fallback";
-  --font-serif: "Crimson Pro", serif;
+  --font-sans: "Inter", "Geist", "Geist Fallback", sans-serif;
+  --font-serif: "Inter", sans-serif;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -120,13 +120,13 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground antialiased selection:bg-white/20;
+    @apply bg-background text-foreground antialiased selection:bg-blue-500/30;
   }
 }
 
 /* Minimal Utilities */
 .glass-panel {
-  @apply bg-black/40 backdrop-blur-md border border-white/10;
+  @apply bg-black/40 backdrop-blur-md border border-white/[0.08];
 }
 
 /* Removed Instagram gradients, replaced with minimal text styles if needed */
@@ -156,15 +156,16 @@
   @apply bg-transparent;
 }
 ::-webkit-scrollbar-thumb {
-  @apply bg-white/10 rounded-full transition-colors;
+  @apply bg-blue-500/20 rounded-full transition-colors;
 }
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-white/20;
+  @apply bg-blue-500/40;
 }
 
 /* Editorial type utilities (shared across app) */
 .font-serif-display {
-  font-family: 'Instrument Serif', Georgia, serif;
+  font-family: 'Inter', sans-serif;
+  font-weight: 800;
 }
 .font-mono-ui {
   font-family: 'JetBrains Mono', ui-monospace, monospace;

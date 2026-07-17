@@ -48,10 +48,10 @@ export function AutomationList({ automations, onDelete, onEdit, onChanged, userI
       body: JSON.stringify({ id: rule.id, is_active: active }),
     })
     if (res.ok) {
-      toast.success(active ? "Automation enabled" : "Automation paused")
+      toast.success(active ? "Automacao ativada" : "Automacao pausada")
       onChanged()
     } else {
-      toast.error("Failed to update")
+      toast.error("Falha ao atualizar")
     }
   }
 
@@ -62,10 +62,10 @@ export function AutomationList({ automations, onDelete, onEdit, onChanged, userI
       body: JSON.stringify({ id: rule.id, action: "duplicate" }),
     })
     if (res.ok) {
-      toast.success("Duplicated — the copy starts paused")
+      toast.success("Duplicado — a copia comeca pausada")
       onChanged()
     } else {
-      toast.error("Failed to duplicate")
+      toast.error("Falha ao duplicar")
     }
   }
 
@@ -75,9 +75,9 @@ export function AutomationList({ automations, onDelete, onEdit, onChanged, userI
         <div className="w-16 h-16 mx-auto mb-4 bg-white/5 rounded-2xl flex items-center justify-center border border-white/10">
           <Zap className="w-7 h-7 text-neutral-600" />
         </div>
-        <h3 className="text-base font-bold text-white mb-1">No automations yet</h3>
+        <h3 className="text-base font-bold text-white mb-1">Nenhuma automacao ainda</h3>
         <p className="text-sm text-neutral-500 max-w-sm mx-auto">
-          Create your first automation above — it just takes 30 seconds.
+          Crie sua primeira automacao acima — leva apenas 30 segundos.
         </p>
       </div>
     )
@@ -87,7 +87,7 @@ export function AutomationList({ automations, onDelete, onEdit, onChanged, userI
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-xs font-bold uppercase tracking-widest text-neutral-500 flex items-center gap-2">
-          Rules
+          Regras
           <span className="bg-white/10 text-white px-2 py-0.5 rounded-full text-[10px]">{automations.length}</span>
         </h2>
       </div>
@@ -96,7 +96,7 @@ export function AutomationList({ automations, onDelete, onEdit, onChanged, userI
         {globalRules.length > 0 && (
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-blue-400 ml-1">
-              <Globe className="w-3 h-3" /> Global
+              <Globe className="w-3 h-3" /> Globais
             </div>
             {globalRules.map((rule, idx) => (
               <RuleCard key={rule.id} rule={rule} onDelete={onDelete} onEdit={onEdit} onToggle={handleToggle} onDuplicate={handleDuplicate} index={idx} />
@@ -107,7 +107,7 @@ export function AutomationList({ automations, onDelete, onEdit, onChanged, userI
         {postSpecificRules.length > 0 && (
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-pink-400 ml-1">
-              <Instagram className="w-3 h-3" /> Post Specific
+              <Instagram className="w-3 h-3" /> Post Especifico
             </div>
             {postSpecificRules.map((rule, idx) => (
               <RuleCard key={rule.id} rule={rule} onDelete={onDelete} onEdit={onEdit} onToggle={handleToggle} onDuplicate={handleDuplicate} index={idx} mediaUrl={mediaMap[rule.specific_media_id || ""]} isSpecific />
@@ -137,7 +137,7 @@ function RuleCard({ rule, onDelete, onEdit, onToggle, onDuplicate, index, isSpec
   const responsePreview = isCard
     ? content.card.title
     : isMedia
-      ? `${content.media.type} attachment`
+      ? `${content.media.type} anexo`
       : (content.message?.slice(0, 50) || "") + (content.message?.length > 50 ? "..." : "")
 
   const replyMode = content.reply_mode
@@ -175,25 +175,25 @@ function RuleCard({ rule, onDelete, onEdit, onToggle, onDuplicate, index, isSpec
             <div className="flex items-center gap-1 shrink-0">
               {confirming ? (
                 <div className="flex items-center gap-1 animate-in fade-in">
-                  <Button size="sm" variant="ghost" onClick={() => setConfirming(false)} className="h-7 text-xs text-neutral-500">Cancel</Button>
-                  <Button size="sm" onClick={() => onDelete(rule.id)} className="h-7 text-xs bg-red-500/20 text-red-400 hover:bg-red-500/30 border border-red-500/20">Delete</Button>
+                  <Button size="sm" variant="ghost" onClick={() => setConfirming(false)} className="h-7 text-xs text-neutral-500">Cancelar</Button>
+                  <Button size="sm" onClick={() => onDelete(rule.id)} className="h-7 text-xs bg-red-500/20 text-red-400 hover:bg-red-500/30 border border-red-500/20">Excluir</Button>
                 </div>
               ) : (
                 <>
                   <Button
-                    variant="ghost" size="icon" onClick={() => onEdit(rule)} title="Edit"
+                    variant="ghost" size="icon" onClick={() => onEdit(rule)} title="Editar"
                     className="h-7 w-7 text-neutral-600 hover:text-white hover:bg-white/10 opacity-0 group-hover:opacity-100 transition-all"
                   >
                     <Pencil className="w-3.5 h-3.5" />
                   </Button>
                   <Button
-                    variant="ghost" size="icon" onClick={() => onDuplicate(rule)} title="Duplicate"
+                    variant="ghost" size="icon" onClick={() => onDuplicate(rule)} title="Duplicar"
                     className="h-7 w-7 text-neutral-600 hover:text-white hover:bg-white/10 opacity-0 group-hover:opacity-100 transition-all"
                   >
                     <Copy className="w-3.5 h-3.5" />
                   </Button>
                   <Button
-                    variant="ghost" size="icon" onClick={() => setConfirming(true)} title="Delete"
+                    variant="ghost" size="icon" onClick={() => setConfirming(true)} title="Excluir"
                     className="h-7 w-7 text-neutral-600 hover:text-red-400 hover:bg-red-500/10 opacity-0 group-hover:opacity-100 transition-all"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
@@ -228,19 +228,19 @@ function RuleCard({ rule, onDelete, onEdit, onToggle, onDuplicate, index, isSpec
               ) : isMedia ? (
                 <ImageIcon className="w-3 h-3 text-pink-400" />
               ) : (
-                <MessageCircle className="w-3 h-3 text-[#ffe14d]" />
+                <MessageCircle className="w-3 h-3 text-[#3b82f6]" />
               )}
               <span className="text-[11px] text-neutral-400 truncate max-w-[120px]">{responsePreview}</span>
             </div>
 
             {replyMode === "dm_only" && (
               <Badge variant="secondary" className="bg-blue-500/10 text-blue-400 border border-blue-500/20 text-[10px] px-1.5 py-0">
-                <EyeOff className="w-2.5 h-2.5 mr-0.5" /> DM only
+                <EyeOff className="w-2.5 h-2.5 mr-0.5" /> Apenas DM
               </Badge>
             )}
             {replyMode === "public_only" && (
               <Badge variant="secondary" className="bg-pink-500/10 text-pink-400 border border-pink-500/20 text-[10px] px-1.5 py-0">
-                <Megaphone className="w-2.5 h-2.5 mr-0.5" /> Public only
+                <Megaphone className="w-2.5 h-2.5 mr-0.5" /> Apenas publica
               </Badge>
             )}
             {content.delay_seconds > 0 && (
@@ -249,13 +249,13 @@ function RuleCard({ rule, onDelete, onEdit, onToggle, onDuplicate, index, isSpec
               </Badge>
             )}
             {content.check_follow && (
-              <Badge variant="secondary" className="bg-[#ffe14d]/10 text-[#ffe14d] border border-[#ffe14d]/20 text-[10px] px-1.5 py-0">
+              <Badge variant="secondary" className="bg-[#3b82f6]/10 text-[#3b82f6] border border-[#3b82f6]/20 text-[10px] px-1.5 py-0">
                 <Lock className="w-2.5 h-2.5 mr-0.5" /> Follow
               </Badge>
             )}
             {isPaused && (
               <Badge variant="secondary" className="bg-white/5 text-neutral-500 border border-white/10 text-[10px] px-1.5 py-0">
-                Paused
+                Pausada
               </Badge>
             )}
           </div>

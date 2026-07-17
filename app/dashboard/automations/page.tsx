@@ -134,7 +134,7 @@ export default function AutomationsPage() {
                                     disabled={aiToggling}
                                     className={`flex items-center gap-2 h-9 px-4 rounded-full font-mono-ui text-[11px] font-bold uppercase tracking-widest transition-colors ${
                                         aiEnabled
-                                            ? 'bg-[#ffe14d]/10 border border-[#ffe14d]/40 text-[#ffe14d]'
+                                            ? 'bg-[#3b82f6]/10 border border-[#3b82f6]/40 text-[#3b82f6]'
                                             : 'border border-white/10 text-neutral-500 hover:text-white hover:border-white/30'
                                     }`}
                                 >
@@ -151,7 +151,7 @@ export default function AutomationsPage() {
                             className={`flex items-center gap-2 h-9 px-5 rounded-full font-mono-ui text-[11px] font-bold uppercase tracking-widest transition-all active:scale-95 ${
                                 showCreateForm
                                     ? 'border border-white/20 text-white hover:border-white/40'
-                                    : 'bg-[#ffe14d] text-black hover:brightness-95'
+                                    : 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white hover:brightness-110'
                             }`}
                         >
                             <Plus className={`w-4 h-4 transition-transform duration-200 ${showCreateForm ? 'rotate-45' : ''}`} />
@@ -162,10 +162,10 @@ export default function AutomationsPage() {
 
                 {/* AI Context Panel */}
                 {showAiContext && (
-                    <div className="rounded-2xl border border-[#ffe14d]/20 bg-[#ffe14d]/[0.04] p-5 animate-in fade-in slide-in-from-top-2 duration-200 space-y-3">
+                    <div className="rounded-2xl border border-[#3b82f6]/20 bg-[#3b82f6]/[0.04] p-5 animate-in fade-in slide-in-from-top-2 duration-200 space-y-3">
                         <div className="flex items-center gap-2">
-                            <Brain className="w-4 h-4 text-[#ffe14d]" />
-                            <span className="text-sm font-semibold text-[#ffe14d]">AI Personality Context</span>
+                            <Brain className="w-4 h-4 text-[#3b82f6]" />
+                            <span className="text-sm font-semibold text-[#3b82f6]">AI Personality Context</span>
                         </div>
                         <p className="text-xs text-neutral-500">Tell AI about your account — niche, products, tone, what to say/avoid. More context = more human replies.</p>
                         <textarea
@@ -173,12 +173,12 @@ export default function AutomationsPage() {
                             onChange={e => setAiContext(e.target.value)}
                             placeholder={`e.g. This is a fitness coaching account. I sell online training programs (₹2999/mo). My tone is motivating but chill. If someone asks about pricing, tell them to DM for a free consultation. Never promise specific results.`}
                             rows={4}
-                            className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-neutral-600 resize-none focus:outline-none focus:border-[#ffe14d]/50 transition-colors"
+                            className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-neutral-600 resize-none focus:outline-none focus:border-[#3b82f6]/50 transition-colors"
                         />
                         <button
                             onClick={handleSaveAiContext}
                             disabled={aiContextSaving}
-                            className="px-4 py-2 rounded-xl bg-[#ffe14d] hover:brightness-95 text-black text-xs font-bold transition-all disabled:opacity-50"
+                            className="px-4 py-2 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-500 hover:brightness-110 text-white text-xs font-bold transition-all disabled:opacity-50"
                         >
                             {aiContextSaving ? 'Saving...' : aiContextSaved ? 'Saved ✓' : 'Save Context'}
                         </button>
@@ -193,7 +193,7 @@ export default function AutomationsPage() {
                             onClick={() => setActiveTab(tab.key)}
                             className={`relative flex items-center gap-2 pb-3 -mb-px font-mono-ui text-xs uppercase tracking-widest transition-colors border-b-2 ${
                                 activeTab === tab.key
-                                    ? 'text-white border-[#ffe14d]'
+                                    ? 'text-white border-[#3b82f6]'
                                     : 'text-neutral-600 border-transparent hover:text-neutral-300'
                             }`}
                         >
@@ -201,7 +201,7 @@ export default function AutomationsPage() {
                             <span>{tab.label}</span>
                             {tab.count > 0 && (
                                 <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${
-                                    activeTab === tab.key ? 'bg-[#ffe14d] text-black' : 'bg-white/10 text-neutral-400'
+                                    activeTab === tab.key ? 'bg-[#3b82f6] text-white' : 'bg-white/10 text-neutral-400'
                                 }`}>
                                     {tab.count}
                                 </span>
@@ -212,7 +212,7 @@ export default function AutomationsPage() {
 
                 {/* Create Form (Collapsible) */}
                 {showCreateForm && (
-                    <div className="rounded-2xl border border-white/10 bg-[#0b0b0a] p-6 md:p-8 animate-in fade-in slide-in-from-top-2 duration-300">
+                    <div className="rounded-2xl border border-white/10 bg-[#111114] p-6 md:p-8 animate-in fade-in slide-in-from-top-2 duration-300">
                         <CreateRuleForm
                             userId={userId}
                             triggerSource={editRule ? editRule.trigger_source : activeTab}

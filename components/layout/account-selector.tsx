@@ -16,7 +16,7 @@ export function AccountSelector({
     onSelect: (id: string) => void
 }) {
     return (
-        <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-4">
+        <div className="min-h-screen bg-[#09090b] flex items-center justify-center p-4">
             <div className="max-w-md w-full">
                 <h2 className="font-serif-display text-3xl text-white text-center mb-2">
                     Escolha a conta
@@ -29,7 +29,7 @@ export function AccountSelector({
                         <button
                             key={account.igAccountId}
                             onClick={() => onSelect(account.igAccountId)}
-                            className="w-full flex items-center gap-4 p-4 rounded-xl border border-white/10 bg-[#0b0b0a] hover:border-[#ffe14d]/50 hover:bg-white/5 transition-all group"
+                            className="w-full flex items-center gap-4 p-4 rounded-xl border border-white/10 bg-[#111114] hover:border-[#3b82f6]/50 hover:bg-white/5 transition-all group"
                         >
                             {account.profilePicture ? (
                                 <img
@@ -38,7 +38,7 @@ export function AccountSelector({
                                     className="w-12 h-12 rounded-full object-cover"
                                 />
                             ) : (
-                                <div className="w-12 h-12 rounded-full bg-[#ffe14d]/10 flex items-center justify-center text-[#ffe14d] text-lg font-bold">
+                                <div className="w-12 h-12 rounded-full bg-[#3b82f6]/10 flex items-center justify-center text-[#3b82f6] text-lg font-bold">
                                     {account.username.charAt(0).toUpperCase()}
                                 </div>
                             )}

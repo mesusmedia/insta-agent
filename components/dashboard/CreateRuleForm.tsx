@@ -27,9 +27,9 @@ interface CreateRuleFormProps {
 }
 
 const STEPS = [
-  { key: "trigger", label: "Trigger Source", sub: "When does it fire?" },
-  { key: "response", label: "Reply Payload", sub: "What do they get?" },
-  { key: "settings", label: "Final Settings", sub: "Speed & restrictions" },
+  { key: "trigger", label: "Origem do Gatilho", sub: "Quando dispara?" },
+  { key: "response", label: "Resposta", sub: "O que recebem?" },
+  { key: "settings", label: "Configuracoes Finais", sub: "Velocidade e restricoes" },
 ] as const
 
 export function CreateRuleForm({ userId, triggerSource, onSuccess, editRule }: CreateRuleFormProps) {
@@ -129,8 +129,8 @@ export function CreateRuleForm({ userId, triggerSource, onSuccess, editRule }: C
   useEffect(() => {
     if (name || isEditing) return
     const isReplyAll = triggerSource === "comment" && triggers.length === 0
-    if (isReplyAll) setName("Reply to every comment")
-    else if (triggers.length > 0) setName(`Reply to "${triggers[0]}"`)
+    if (isReplyAll) setName("Responder a todos os comentarios")
+    else if (triggers.length > 0) setName(`Responder a "${triggers[0]}"`)
   }, [triggers, name, isEditing, triggerSource])
 
   /* ---------- helpers ---------- */
@@ -172,17 +172,17 @@ export function CreateRuleForm({ userId, triggerSource, onSuccess, editRule }: C
     const isReplyAll = triggerSource === "comment" && triggers.length === 0
     const who =
       triggerSource === "comment"
-        ? isReplyAll ? "anyone comments on your post" : `someone comments ${triggers.length ? `"${triggers[0]}"` : "a keyword"}`
+        ? isReplyAll ? "alguem comentar no seu post" : `alguem comentar ${triggers.length ? `"${triggers[0]}"` : "uma palavra-chave"}`
         : triggerSource === "dm"
-          ? `someone DMs you ${triggers.length ? `"${triggers[0]}"` : "a keyword"}`
-          : storyTriggerType === "mention" ? "someone mentions you in a story"
-            : storyTriggerType === "reaction" ? "someone reacts to your story"
-              : "someone replies to your story"
+          ? `alguem te enviar DM ${triggers.length ? `"${triggers[0]}"` : "uma palavra-chave"}`
+          : storyTriggerType === "mention" ? "alguem te mencionar em um Story"
+            : storyTriggerType === "reaction" ? "alguem reagir ao seu Story"
+              : "alguem responder ao seu Story"
     const what =
-      replyMode === "public_only" ? "reply publicly"
-        : type === "card" ? "send them a card with buttons"
-          : type === "media" ? `send them ${mediaType === "image" ? "an image" : `a ${mediaType}`}`
-            : "send them a DM"
+      replyMode === "public_only" ? "responder publicamente"
+        : type === "card" ? "enviar um card com botoes"
+          : type === "media" ? `enviar ${mediaType === "image" ? "uma imagem" : `um ${mediaType}`}`
+            : "enviar uma DM"
     return { who, what }
   }, [triggerSource, triggers, storyTriggerType, replyMode, type, mediaType])
 
@@ -244,13 +244,13 @@ export function CreateRuleForm({ userId, triggerSource, onSuccess, editRule }: C
         body: JSON.stringify(isEditing ? { ...payload, id: editRule!.id } : payload),
       })
       if (res.ok) {
-        toast.success(isEditing ? "Automation updated" : "Automation is live")
+        toast.success(isEditing ? "Automacao atualizada" : "Automacao ativada")
         onSuccess()
       } else {
-        toast.error("Could not save — try again")
+        toast.error("Erro ao salvar — tente novamente")
       }
     } catch {
-      toast.error("Network error")
+      toast.error("Erro de conexao")
     } finally {
       setSaving(false)
     }
@@ -273,7 +273,7 @@ export function CreateRuleForm({ userId, triggerSource, onSuccess, editRule }: C
                 >
                   <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-xs font-bold transition-all duration-300 ${
                     isCompleted
-                      ? "bg-[#ffe14d] text-black shadow-[0_0_15px_rgba(255,225,77,0.3)]"
+                      ? "bg-[#3b82f6] text-white shadow-[0_0_15px_rgba(59,130,246,0.3)]"
                       : isActive
                         ? "bg-white text-black ring-4 ring-white/10"
                         : "bg-neutral-800 text-neutral-500 border border-white/5"
@@ -289,7 +289,7 @@ export function CreateRuleForm({ userId, triggerSource, onSuccess, editRule }: C
                 </button>
                 {i < STEPS.length - 1 && (
                   <div className="flex-1 h-[2px] mx-2 relative bg-neutral-800 rounded-full overflow-hidden">
-                    <div className={`absolute inset-y-0 left-0 transition-all duration-500 bg-[#ffe14d] ${
+                    <div className={`absolute inset-y-0 left-0 transition-all duration-500 bg-[#3b82f6] ${
                       isCompleted ? "w-full" : "w-0"
                     }`} />
                   </div>
@@ -303,24 +303,24 @@ export function CreateRuleForm({ userId, triggerSource, onSuccess, editRule }: C
       {/* ── Two Column Workspace ── */}
       <div className="grid lg:grid-cols-[1fr_320px] gap-8 items-start">
         {/* ── LEFT: Config Form ── */}
-        <div className="bg-[#0b0b0a] border border-white/10 rounded-2xl p-6 md:p-8 space-y-6">
+        <div className="bg-[#111114] border border-white/10 rounded-2xl p-6 md:p-8 space-y-6">
           {/* ===== STEP 1: TRIGGER ===== */}
           {step === 0 && (
             <div className="space-y-6 animate-in fade-in slide-in-from-right-2 duration-300">
               <StepHeader
                 number={1}
-                title={triggerSource === "comment" ? "Select the target post/reel" : triggerSource === "dm" ? "When someone DMs you" : "When someone interacts with your story"}
-                description={triggerSource === "comment" ? "Choose the specific media to automate." : "Set the conditions that launch this automation."}
+                title={triggerSource === "comment" ? "Selecione o post/reel alvo" : triggerSource === "dm" ? "Quando alguem te enviar DM" : "Quando alguem interagir com seu Story"}
+                description={triggerSource === "comment" ? "Escolha a midia especifica para automatizar." : "Defina as condicoes que disparam esta automacao."}
               />
 
               {triggerSource === "story" && (
                 <div className="space-y-3">
-                  <FieldLabel>Select Story Interaction Type</FieldLabel>
+                  <FieldLabel>Tipo de interacao com Story</FieldLabel>
                   <div className="grid grid-cols-3 gap-3">
                     {([
-                      { key: "mention" as const, icon: <AtSign className="w-5 h-5" />, label: "Mentions me", desc: "Tagged in a story" },
-                      { key: "reaction" as const, icon: <Heart className="w-5 h-5" />, label: "Reacts", desc: "Sends emoji reaction" },
-                      { key: "reply" as const, icon: <MessageSquare className="w-5 h-5" />, label: "Replies", desc: "Text reply to story" },
+                      { key: "mention" as const, icon: <AtSign className="w-5 h-5" />, label: "Me menciona", desc: "Marcado em um Story" },
+                      { key: "reaction" as const, icon: <Heart className="w-5 h-5" />, label: "Reage", desc: "Envia reacao com emoji" },
+                      { key: "reply" as const, icon: <MessageSquare className="w-5 h-5" />, label: "Responde", desc: "Resposta de texto ao Story" },
                     ]).map(({ key, icon, label, desc }) => (
                       <button
                         key={key}
@@ -328,11 +328,11 @@ export function CreateRuleForm({ userId, triggerSource, onSuccess, editRule }: C
                         onClick={() => setStoryTriggerType(key)}
                         className={`p-4 rounded-xl border text-left flex flex-col gap-2 transition-all duration-200 ${
                           storyTriggerType === key
-                            ? "border-[#ffe14d] bg-[#ffe14d]/[0.06] text-[#ffe14d]"
+                            ? "border-[#3b82f6] bg-[#3b82f6]/[0.06] text-[#3b82f6]"
                             : "border-white/10 text-neutral-400 hover:border-white/20 hover:text-white bg-white/[0.01]"
                         }`}
                       >
-                        <span className={storyTriggerType === key ? "text-[#ffe14d]" : "text-neutral-500"}>{icon}</span>
+                        <span className={storyTriggerType === key ? "text-[#3b82f6]" : "text-neutral-500"}>{icon}</span>
                         <div>
                           <p className="text-xs font-bold uppercase tracking-wider">{label}</p>
                           <p className="text-[10px] text-neutral-500 font-normal mt-0.5">{desc}</p>
@@ -345,11 +345,11 @@ export function CreateRuleForm({ userId, triggerSource, onSuccess, editRule }: C
 
               {triggerSource === "comment" && (
                 <div className="space-y-4">
-                  <FieldLabel>Automate which post or reel?</FieldLabel>
+                  <FieldLabel>Automatizar qual post ou reel?</FieldLabel>
                   {loadingReels ? (
                     <div className="p-8 flex flex-col items-center justify-center gap-3 border border-white/5 rounded-2xl bg-white/[0.01]">
-                      <Loader2 className="w-6 h-6 animate-spin text-[#ffe14d]" />
-                      <span className="text-xs text-neutral-500 font-mono-ui">Fetching Instagram feed...</span>
+                      <Loader2 className="w-6 h-6 animate-spin text-[#3b82f6]" />
+                      <span className="text-xs text-neutral-500 font-mono-ui">Carregando feed do Instagram...</span>
                     </div>
                   ) : (
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-[300px] overflow-y-auto pr-1">
@@ -362,13 +362,13 @@ export function CreateRuleForm({ userId, triggerSource, onSuccess, editRule }: C
                         }}
                         className={`aspect-square rounded-xl border flex flex-col items-center justify-center p-4 text-center transition-all duration-200 ${
                           hasSelectedReelOption && selectedReel === null
-                            ? "border-[#ffe14d] bg-[#ffe14d]/[0.06] text-[#ffe14d]"
+                            ? "border-[#3b82f6] bg-[#3b82f6]/[0.06] text-[#3b82f6]"
                             : "border-white/10 text-neutral-400 hover:border-white/20 hover:text-white bg-white/[0.01]"
                         }`}
                       >
                         <Globe className="w-8 h-8 mb-2 opacity-80" />
-                        <span className="text-xs font-bold">All Posts & Reels</span>
-                        <span className="text-[9px] text-neutral-500 mt-1">Global Trigger</span>
+                        <span className="text-xs font-bold">Todos os Posts e Reels</span>
+                        <span className="text-[9px] text-neutral-500 mt-1">Gatilho Global</span>
                       </button>
 
                       {reels.map((reel) => {
@@ -383,7 +383,7 @@ export function CreateRuleForm({ userId, triggerSource, onSuccess, editRule }: C
                             }}
                             className={`aspect-square rounded-xl border overflow-hidden relative group text-left transition-all duration-200 ${
                               isSelected
-                                ? "border-[#ffe14d] ring-2 ring-[#ffe14d]/20"
+                                ? "border-[#3b82f6] ring-2 ring-[#3b82f6]/20"
                                 : "border-white/10 hover:border-white/25 bg-[#0e0e0e]"
                             }`}
                           >
@@ -402,8 +402,8 @@ export function CreateRuleForm({ userId, triggerSource, onSuccess, editRule }: C
 
                             {/* Selected Check overlay */}
                             {isSelected && (
-                              <div className="absolute inset-0 bg-[#ffe14d]/10 flex items-center justify-center backdrop-blur-[1px]">
-                                <div className="w-8 h-8 rounded-full bg-[#ffe14d] text-black flex items-center justify-center shadow-lg">
+                              <div className="absolute inset-0 bg-[#3b82f6]/10 flex items-center justify-center backdrop-blur-[1px]">
+                                <div className="w-8 h-8 rounded-full bg-[#3b82f6] text-white flex items-center justify-center shadow-lg">
                                   <Check className="w-4 h-4 stroke-[3]" />
                                 </div>
                               </div>
@@ -411,7 +411,7 @@ export function CreateRuleForm({ userId, triggerSource, onSuccess, editRule }: C
 
                             {/* Caption snippet at bottom */}
                             <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/80 to-transparent p-2 pt-6">
-                              <p className="text-[10px] text-white line-clamp-1 font-sans">{reel.caption || "Untitled"}</p>
+                              <p className="text-[10px] text-white line-clamp-1 font-sans">{reel.caption || "Sem titulo"}</p>
                             </div>
                           </button>
                         )
@@ -426,33 +426,33 @@ export function CreateRuleForm({ userId, triggerSource, onSuccess, editRule }: C
                 <div className="space-y-4 pt-3 border-t border-white/5 animate-in fade-in slide-in-from-top-2 duration-300">
                   {triggerSource === "comment" ? (
                     <div className="space-y-2">
-                      <FieldLabel>Keywords to match</FieldLabel>
+                      <FieldLabel>Palavras-chave para corresponder</FieldLabel>
                       <p className="text-[11px] text-neutral-500">
-                        What keyword triggers this DM? <span className="text-[#ffe14d] font-semibold">Keep empty to reply to every comment.</span>
+                        Qual palavra-chave dispara esta DM? <span className="text-[#3b82f6] font-semibold">Deixe vazio para responder a todos os comentarios.</span>
                       </p>
                       <TagInput
                         value={triggers}
                         onChange={setTriggers}
-                        placeholder="type keyword, press Enter (e.g. guide)"
+                        placeholder="digite a palavra-chave e pressione Enter (ex: guia)"
                       />
                     </div>
                   ) : needsKeywords ? (
                     <div className="space-y-2 bg-neutral-900/40 p-5 rounded-2xl border border-white/5">
                       <FieldLabel>
                         {triggerSource === "story" && storyTriggerType === "reaction"
-                          ? "Only react on these emojis"
-                          : "Trigger keywords"}
+                          ? "Reagir apenas a estes emojis"
+                          : "Palavras-chave do gatilho"}
                       </FieldLabel>
                       <p className="text-[11px] text-neutral-500 mb-3">
                         {triggerSource === "story" && storyTriggerType === "reaction"
-                          ? "Leave empty to trigger on any emoji reaction."
-                          : "Matches exact phrases or words (case-insensitive)."}
+                          ? "Deixe vazio para disparar com qualquer reacao de emoji."
+                          : "Corresponde a frases ou palavras exatas (sem diferenciar maiusculas)."}
                       </p>
                       <TagInput
                         value={triggers}
                         onChange={setTriggers}
                         placeholder={
-                          triggerSource === "story" && storyTriggerType === "reaction" ? "e.g. ❤️, 🔥, 👍" : "type keyword, press Enter (e.g. price)"
+                          triggerSource === "story" && storyTriggerType === "reaction" ? "ex: ❤️, 🔥, 👍" : "digite a palavra-chave e pressione Enter (ex: preco)"
                         }
                       />
                     </div>
@@ -461,8 +461,8 @@ export function CreateRuleForm({ userId, triggerSource, onSuccess, editRule }: C
                   {triggerSource === "comment" && triggers.length > 0 && (
                     <ToggleRow
                       icon={<MessageSquare className="w-5 h-5" />}
-                      title="Check replies to comments"
-                      sub="Normally only primary post comments trigger replies"
+                      title="Verificar respostas a comentarios"
+                      sub="Normalmente apenas comentarios primarios disparam respostas"
                       on={includeReplies}
                       onToggle={() => setIncludeReplies(!includeReplies)}
                     />
@@ -477,25 +477,25 @@ export function CreateRuleForm({ userId, triggerSource, onSuccess, editRule }: C
             <div className="space-y-6 animate-in fade-in slide-in-from-right-2 duration-300">
               <StepHeader
                 number={2}
-                title="Compose response message"
-                description="Pick the format and craft the message sent to prospects."
+                title="Compor mensagem de resposta"
+                description="Escolha o formato e crie a mensagem enviada aos contatos."
               />
 
               {triggerSource === "comment" && (
                 <div className="space-y-2">
-                  <FieldLabel>Flow direction</FieldLabel>
+                  <FieldLabel>Direcao do fluxo</FieldLabel>
                   <div className="grid grid-cols-3 gap-2">
                     {([
-                      { key: "both" as const, label: "Reply + DM" },
-                      { key: "public_only" as const, label: "Reply only" },
-                      { key: "dm_only" as const, label: "DM only" },
+                      { key: "both" as const, label: "Resposta + DM" },
+                      { key: "public_only" as const, label: "Apenas resposta" },
+                      { key: "dm_only" as const, label: "Apenas DM" },
                     ]).map(({ key, label }) => (
                       <button
                         key={key}
                         type="button"
                         onClick={() => setReplyMode(key)}
                         className={`h-11 rounded-xl border text-xs font-bold uppercase tracking-wider transition-all ${
-                          replyMode === key ? "border-[#ffe14d] bg-[#ffe14d]/10 text-[#ffe14d]" : "border-white/10 text-neutral-400 hover:text-white"
+                          replyMode === key ? "border-[#3b82f6] bg-[#3b82f6]/10 text-[#3b82f6]" : "border-white/10 text-neutral-400 hover:text-white"
                         }`}
                       >
                         {label}
@@ -507,28 +507,28 @@ export function CreateRuleForm({ userId, triggerSource, onSuccess, editRule }: C
 
               {triggerSource === "comment" && replyMode !== "dm_only" && (
                 <div className="space-y-2 bg-neutral-900/40 p-5 rounded-2xl border border-white/5">
-                  <FieldLabel>Public comments rotation</FieldLabel>
-                  <p className="text-[11px] text-neutral-500 mb-3">Add multiple phrases. We rotate them dynamically to look human.</p>
-                  <TagInput value={publicReplies} onChange={setPublicReplies} placeholder={'e.g. "Sent you a DM!", "Check your inbox!"'} />
+                  <FieldLabel>Rotacao de comentarios publicos</FieldLabel>
+                  <p className="text-[11px] text-neutral-500 mb-3">Adicione varias frases. Alternamos dinamicamente para parecer humano.</p>
+                  <TagInput value={publicReplies} onChange={setPublicReplies} placeholder={'ex: "Te mandei uma DM!", "Confere sua caixa de entrada!"'} />
                 </div>
               )}
 
               {replyMode !== "public_only" && (
                 <div className="space-y-5 pt-2">
                   <div className="space-y-2">
-                    <FieldLabel>Direct Message Format</FieldLabel>
+                    <FieldLabel>Formato da Mensagem Direta</FieldLabel>
                     <div className="grid grid-cols-3 gap-3">
                       {([
-                        { key: "text" as const, icon: <MessageCircle className="w-4.5 h-4.5" />, label: "Text Only" },
+                        { key: "text" as const, icon: <MessageCircle className="w-4.5 h-4.5" />, label: "Apenas Texto" },
                         { key: "card" as const, icon: <Link2 className="w-4.5 h-4.5" />, label: "Card / Link" },
-                        { key: "media" as const, icon: <ImageIcon className="w-4.5 h-4.5" />, label: "Rich Media" },
+                        { key: "media" as const, icon: <ImageIcon className="w-4.5 h-4.5" />, label: "Midia Rica" },
                       ]).map(({ key, icon, label }) => (
                         <button
                           key={key}
                           type="button"
                           onClick={() => setType(key)}
                           className={`p-3 rounded-xl border text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all ${
-                            type === key ? "border-[#ffe14d] bg-[#ffe14d]/10 text-[#ffe14d]" : "border-white/10 text-neutral-400 hover:text-white"
+                            type === key ? "border-[#3b82f6] bg-[#3b82f6]/10 text-[#3b82f6]" : "border-white/10 text-neutral-400 hover:text-white"
                           }`}
                         >
                           {icon}
@@ -540,14 +540,14 @@ export function CreateRuleForm({ userId, triggerSource, onSuccess, editRule }: C
 
                   {type === "text" && (
                     <div className="space-y-2">
-                      <FieldLabel>DM Message Text</FieldLabel>
+                      <FieldLabel>Texto da Mensagem DM</FieldLabel>
                       <textarea
                         value={messageText}
                         onChange={(e) => setMessageText(e.target.value)}
                         rows={5}
                         maxLength={1000}
-                        className="w-full bg-white/[0.02] border border-white/10 rounded-2xl px-4 py-3.5 text-sm text-white placeholder:text-neutral-600 resize-none focus:outline-none focus:border-[#ffe14d]/50 transition-colors"
-                        placeholder="Type the message to send in DMs..."
+                        className="w-full bg-white/[0.02] border border-white/10 rounded-2xl px-4 py-3.5 text-sm text-white placeholder:text-neutral-600 resize-none focus:outline-none focus:border-[#3b82f6]/50 transition-colors"
+                        placeholder="Digite a mensagem para enviar por DM..."
                       />
                       <p className="font-mono-ui text-[10px] text-neutral-600 text-right">{messageText.length}/1000</p>
                     </div>
@@ -556,17 +556,17 @@ export function CreateRuleForm({ userId, triggerSource, onSuccess, editRule }: C
                   {type === "card" && (
                     <div className="space-y-4">
                       <div className="space-y-3">
-                        <FieldLabel>Card configuration</FieldLabel>
-                        <TextField value={cardTitle} onChange={setCardTitle} placeholder="Card main title" />
-                        <TextField value={cardSubtitle} onChange={setCardSubtitle} placeholder="Subtitle description (optional)" />
-                        <TextField value={cardImage} onChange={setCardImage} placeholder="Cover image URL (optional)" />
+                        <FieldLabel>Configuracao do card</FieldLabel>
+                        <TextField value={cardTitle} onChange={setCardTitle} placeholder="Titulo principal do card" />
+                        <TextField value={cardSubtitle} onChange={setCardSubtitle} placeholder="Descricao do subtitulo (opcional)" />
+                        <TextField value={cardImage} onChange={setCardImage} placeholder="URL da imagem de capa (opcional)" />
                       </div>
                       <div className="space-y-2.5">
                         <div className="flex items-center justify-between border-b border-white/5 pb-2">
-                          <FieldLabel>Interactive buttons ({buttons.length}/3)</FieldLabel>
+                          <FieldLabel>Botoes interativos ({buttons.length}/3)</FieldLabel>
                           <button type="button" onClick={addButton} disabled={buttons.length >= 3}
                             className="font-mono-ui text-[11px] text-neutral-400 hover:text-white disabled:opacity-40 flex items-center gap-1 transition-colors">
-                            <Plus className="w-3 h-3" /> Add button
+                            <Plus className="w-3 h-3" /> Adicionar botao
                           </button>
                         </div>
                         {buttons.map((btn) => (
@@ -575,15 +575,15 @@ export function CreateRuleForm({ userId, triggerSource, onSuccess, editRule }: C
                               value={btn.title}
                               onChange={(e) => updateButton(btn.id, "title", e.target.value)}
                               className="h-8 text-xs flex-1 bg-transparent border-none px-2 text-white placeholder:text-neutral-500 focus:outline-none"
-                              placeholder="Button label"
+                              placeholder="Texto do botao"
                             />
                             <select
                               value={btn.type}
                               onChange={(e) => updateButton(btn.id, "type", e.target.value)}
                               className="h-8 text-[11px] bg-black border border-white/10 rounded-lg px-2 text-neutral-300 focus:outline-none"
                             >
-                              <option value="web_url">Open Link</option>
-                              <option value="postback">Trigger Flow</option>
+                              <option value="web_url">Abrir Link</option>
+                              <option value="postback">Disparar Fluxo</option>
                             </select>
                             <input
                               value={btn.type === "web_url" ? btn.url : btn.payload}
@@ -603,7 +603,7 @@ export function CreateRuleForm({ userId, triggerSource, onSuccess, editRule }: C
                   {type === "media" && (
                     <div className="space-y-4">
                       <div className="space-y-2">
-                        <FieldLabel>Select File Type</FieldLabel>
+                        <FieldLabel>Tipo de Arquivo</FieldLabel>
                         <div className="grid grid-cols-3 gap-2">
                           {(["image", "video", "audio"] as const).map((m) => (
                             <button
@@ -611,26 +611,26 @@ export function CreateRuleForm({ userId, triggerSource, onSuccess, editRule }: C
                               type="button"
                               onClick={() => setMediaType(m)}
                               className={`h-10 rounded-xl border text-xs font-bold uppercase transition-all ${
-                                mediaType === m ? "border-[#ffe14d] bg-[#ffe14d]/10 text-[#ffe14d]" : "border-white/10 text-neutral-400 hover:text-white"
+                                mediaType === m ? "border-[#3b82f6] bg-[#3b82f6]/10 text-[#3b82f6]" : "border-white/10 text-neutral-400 hover:text-white"
                               }`}
                             >
-                              {m === "image" ? "Photo" : m === "video" ? "Video" : "Audio"}
+                              {m === "image" ? "Foto" : m === "video" ? "Video" : "Audio"}
                             </button>
                           ))}
                         </div>
                       </div>
-                      <TextField value={mediaUrl} onChange={setMediaUrl} placeholder="Link to public media file (e.g. mp4, jpg)" />
-                      <TextField value={messageText} onChange={setMessageText} placeholder="Optional caption message to send after..." />
+                      <TextField value={mediaUrl} onChange={setMediaUrl} placeholder="Link para arquivo de midia publico (ex: mp4, jpg)" />
+                      <TextField value={messageText} onChange={setMessageText} placeholder="Mensagem de legenda opcional para enviar depois..." />
                     </div>
                   )}
 
                   {type !== "card" && (
                     <div className="space-y-3 pt-2">
                       <div className="flex items-center justify-between border-b border-white/5 pb-2">
-                        <FieldLabel>Quick Reply chips ({quickReplies.length}/4)</FieldLabel>
+                        <FieldLabel>Respostas rapidas ({quickReplies.length}/4)</FieldLabel>
                         <button type="button" onClick={addQuickReply} disabled={quickReplies.length >= 4}
                           className="font-mono-ui text-[11px] text-neutral-400 hover:text-white disabled:opacity-40 flex items-center gap-1 transition-colors">
-                          <Plus className="w-3 h-3" /> Add chip
+                          <Plus className="w-3 h-3" /> Adicionar chip
                         </button>
                       </div>
                       {quickReplies.length > 0 && (
@@ -641,8 +641,8 @@ export function CreateRuleForm({ userId, triggerSource, onSuccess, editRule }: C
                                 value={q.title}
                                 onChange={(e) => updateQuickReply(q.id, e.target.value)}
                                 maxLength={20}
-                                className="h-10 text-xs flex-1 bg-white/[0.02] border border-white/10 rounded-xl px-4 text-white placeholder:text-neutral-500 focus:outline-none focus:border-[#ffe14d]/50"
-                                placeholder='e.g. "Send Details!"'
+                                className="h-10 text-xs flex-1 bg-white/[0.02] border border-white/10 rounded-xl px-4 text-white placeholder:text-neutral-500 focus:outline-none focus:border-[#3b82f6]/50"
+                                placeholder='ex: "Enviar Detalhes!"'
                               />
                               <button type="button" onClick={() => removeQuickReply(q.id)} className="text-neutral-500 hover:text-red-400 p-1.5 transition-colors">
                                 <Trash2 className="w-4 h-4" />
@@ -663,19 +663,19 @@ export function CreateRuleForm({ userId, triggerSource, onSuccess, editRule }: C
             <div className="space-y-6 animate-in fade-in slide-in-from-right-2 duration-300">
               <StepHeader
                 number={3}
-                title="Configure rules & name"
-                description="Finalize performance parameters and activate the automation."
+                title="Configurar regras e nome"
+                description="Finalize os parametros de desempenho e ative a automacao."
               />
 
               <div className="space-y-2">
-                <FieldLabel>Automation identifier name</FieldLabel>
-                <TextField value={name} onChange={setName} placeholder='e.g. "Free Ebook Download Trigger"' />
+                <FieldLabel>Nome identificador da automacao</FieldLabel>
+                <TextField value={name} onChange={setName} placeholder='ex: "Gatilho Download Ebook Gratis"' />
               </div>
 
               <div className="space-y-4">
-                <FieldLabel>Delivery options</FieldLabel>
-                <ToggleRow icon={<Lock className="w-5 h-5" />} title="Follow gate required" sub="Only followers get the payload. Non-followers get follow prompt first." on={checkFollow} onToggle={() => setCheckFollow(!checkFollow)} />
-                <ToggleRow icon={<Eye className="w-5 h-5" />} title="Mimic active typing status" sub="Displays typing bubble indicators to look completely organic." on={typingIndicator} onToggle={() => setTypingIndicator(!typingIndicator)} />
+                <FieldLabel>Opcoes de entrega</FieldLabel>
+                <ToggleRow icon={<Lock className="w-5 h-5" />} title="Bloqueio por seguidor obrigatorio" sub="Apenas seguidores recebem o conteudo. Nao-seguidores recebem convite para seguir primeiro." on={checkFollow} onToggle={() => setCheckFollow(!checkFollow)} />
+                <ToggleRow icon={<Eye className="w-5 h-5" />} title="Simular status de digitacao" sub="Exibe indicador de digitacao para parecer completamente organico." on={typingIndicator} onToggle={() => setTypingIndicator(!typingIndicator)} />
                 
                 <div className="flex items-center justify-between p-4 rounded-2xl border border-white/10 bg-white/[0.01]">
                   <div className="flex items-center gap-3">
@@ -683,8 +683,8 @@ export function CreateRuleForm({ userId, triggerSource, onSuccess, editRule }: C
                       <Timer className="w-4.5 h-4.5 text-neutral-400" />
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-white">Randomized delivery delay</p>
-                      <p className="text-[11px] text-neutral-500 mt-0.5">Waits before sending to simulate real human delays.</p>
+                      <p className="text-sm font-semibold text-white">Atraso aleatorio de entrega</p>
+                      <p className="text-[11px] text-neutral-500 mt-0.5">Aguarda antes de enviar para simular atrasos humanos reais.</p>
                     </div>
                   </div>
                   <select
@@ -692,23 +692,23 @@ export function CreateRuleForm({ userId, triggerSource, onSuccess, editRule }: C
                     onChange={(e) => setDelaySeconds(Number(e.target.value))}
                     className="bg-black border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none hover:border-white/20 transition-all cursor-pointer"
                   >
-                    <option value={0}>Send Immediately</option>
-                    <option value={3}>3s delay</option>
-                    <option value={5}>5s delay</option>
-                    <option value={10}>10s delay</option>
-                    <option value={30}>30s delay</option>
+                    <option value={0}>Enviar Imediatamente</option>
+                    <option value={3}>Atraso de 3s</option>
+                    <option value={5}>Atraso de 5s</option>
+                    <option value={10}>Atraso de 10s</option>
+                    <option value={30}>Atraso de 30s</option>
                   </select>
                 </div>
               </div>
 
               {/* Plain-text Summary Panel */}
-              <div className="rounded-2xl border border-[#ffe14d]/15 bg-[#ffe14d]/[0.03] p-5 space-y-2">
+              <div className="rounded-2xl border border-[#3b82f6]/15 bg-[#3b82f6]/[0.03] p-5 space-y-2">
                 <div className="flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-[#ffe14d]" />
-                  <span className="text-xs font-mono-ui uppercase tracking-widest text-[#ffe14d] font-bold">Rule Logic Summary</span>
+                  <Sparkles className="w-4 h-4 text-[#3b82f6]" />
+                  <span className="text-xs font-mono-ui uppercase tracking-widest text-[#3b82f6] font-bold">Resumo da Logica da Regra</span>
                 </div>
                 <p className="text-sm text-neutral-300 leading-relaxed">
-                  When <span className="text-white font-semibold underline decoration-[#ffe14d]/40 decoration-2">{summary.who}</span>, we will <span className="text-[#ffe14d] font-semibold">{summary.what}</span>.
+                  Quando <span className="text-white font-semibold underline decoration-[#3b82f6]/40 decoration-2">{summary.who}</span>, vamos <span className="text-[#3b82f6] font-semibold">{summary.what}</span>.
                 </p>
               </div>
             </div>
@@ -723,7 +723,7 @@ export function CreateRuleForm({ userId, triggerSource, onSuccess, editRule }: C
                 className="flex items-center gap-2 h-11 px-5 rounded-full border border-white/10 text-neutral-400 hover:text-white hover:border-white/25 font-mono-ui text-xs font-bold transition-all"
               >
                 <ChevronLeft className="w-4 h-4" />
-                Back
+                Voltar
               </button>
             ) : <div />}
 
@@ -732,9 +732,9 @@ export function CreateRuleForm({ userId, triggerSource, onSuccess, editRule }: C
                 type="button"
                 onClick={() => { if (stepValid[step]) setStep(step + 1) }}
                 disabled={!stepValid[step]}
-                className="flex items-center gap-2 h-11 px-6 rounded-full bg-white text-black font-mono-ui text-xs font-bold hover:bg-[#ffe14d] hover:shadow-[0_0_20px_rgba(255,225,77,0.25)] active:scale-[0.98] transition-all disabled:opacity-30 disabled:cursor-not-allowed ml-auto"
+                className="flex items-center gap-2 h-11 px-6 rounded-full bg-white text-black font-mono-ui text-xs font-bold hover:bg-gradient-to-r hover:from-blue-500 hover:to-indigo-500 hover:text-white hover:shadow-[0_0_20px_rgba(59,130,246,0.25)] active:scale-[0.98] transition-all disabled:opacity-30 disabled:cursor-not-allowed ml-auto"
               >
-                Continue
+                Continuar
                 <ChevronRight className="w-4 h-4" />
               </button>
             ) : (
@@ -742,10 +742,10 @@ export function CreateRuleForm({ userId, triggerSource, onSuccess, editRule }: C
                 type="button"
                 onClick={handleSubmit}
                 disabled={!canSave || saving}
-                className="flex items-center justify-center gap-2 h-11 px-8 rounded-full bg-[#ffe14d] text-black font-mono-ui text-sm font-bold hover:brightness-95 hover:shadow-[0_0_25px_rgba(255,225,77,0.35)] active:scale-[0.98] transition-all disabled:opacity-30 disabled:cursor-not-allowed ml-auto"
+                className="flex items-center justify-center gap-2 h-11 px-8 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-mono-ui text-sm font-bold hover:brightness-110 hover:shadow-[0_0_25px_rgba(59,130,246,0.35)] active:scale-[0.98] transition-all disabled:opacity-30 disabled:cursor-not-allowed ml-auto"
               >
                 {saving ? <Loader2 className="w-4.5 h-4.5 animate-spin" /> : <Zap className="w-4 h-4 stroke-[2.5]" />}
-                {saving ? "Saving Changes..." : isEditing ? "Save Automation" : "Go Live"}
+                {saving ? "Salvando..." : isEditing ? "Salvar Automacao" : "Ativar"}
               </button>
             )}
           </div>
@@ -755,7 +755,7 @@ export function CreateRuleForm({ userId, triggerSource, onSuccess, editRule }: C
         {replyMode !== "public_only" && (
           <div className="hidden lg:block sticky top-6">
             <div className="text-center mb-3">
-              <span className="font-mono-ui text-[10px] uppercase tracking-[0.25em] text-neutral-500 font-bold">Interactive Preview</span>
+              <span className="font-mono-ui text-[10px] uppercase tracking-[0.25em] text-neutral-500 font-bold">Pre-visualizacao Interativa</span>
             </div>
             
             {/* iPhone Outer Frame */}
@@ -789,7 +789,7 @@ export function CreateRuleForm({ userId, triggerSource, onSuccess, editRule }: C
                   </div>
                   <div className="leading-tight">
                     <p className="text-[11px] font-semibold text-white truncate max-w-[100px]">@{userId ? "test_creator" : "creator"}</p>
-                    <p className="text-[8px] text-green-500 font-medium">Active now</p>
+                    <p className="text-[8px] text-green-500 font-medium">Ativo agora</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3.5 text-neutral-300">
@@ -812,7 +812,7 @@ export function CreateRuleForm({ userId, triggerSource, onSuccess, editRule }: C
                 {/* Typing indicator simulator */}
                 {typingIndicator && (
                   <div className="flex justify-end pr-1 animate-pulse">
-                    <span className="text-[9px] text-neutral-500 font-mono-ui italic">typing indicator active...</span>
+                    <span className="text-[9px] text-neutral-500 font-mono-ui italic">indicador de digitacao ativo...</span>
                   </div>
                 )}
 
@@ -822,7 +822,7 @@ export function CreateRuleForm({ userId, triggerSource, onSuccess, editRule }: C
                     <div className="max-w-[80%] space-y-1.5 flex flex-col items-end">
                       {type === "text" && (
                         <div className="bg-[#3797f0] text-white rounded-2xl rounded-br-sm px-4 py-2.5 text-xs whitespace-pre-wrap break-words leading-relaxed shadow-lg">
-                          {messageText || "Type message content..."}
+                          {messageText || "Digite o conteudo da mensagem..."}
                         </div>
                       )}
                       {type === "card" && (
@@ -831,7 +831,7 @@ export function CreateRuleForm({ userId, triggerSource, onSuccess, editRule }: C
                             <img src={cardImage} alt="" className="w-full h-24 object-cover" loading="lazy" />
                           )}
                           <div className="p-3">
-                            <p className="text-xs font-bold text-white line-clamp-1">{cardTitle || "Card Title"}</p>
+                            <p className="text-xs font-bold text-white line-clamp-1">{cardTitle || "Titulo do Card"}</p>
                             {cardSubtitle && <p className="text-[10px] text-neutral-400 mt-1 line-clamp-2 leading-tight">{cardSubtitle}</p>}
                           </div>
                           {buttons.filter((b) => b.title).map((b) => (
@@ -861,7 +861,7 @@ export function CreateRuleForm({ userId, triggerSource, onSuccess, editRule }: C
                 ) : (
                   <div className="flex justify-end animate-pulse">
                     <div className="border border-dashed border-white/15 bg-white/[0.01] rounded-2xl px-4 py-3 text-[10px] text-neutral-500 font-mono-ui italic text-center w-full">
-                      Configure step 2 to build payload
+                      Configure a etapa 2 para montar a resposta
                     </div>
                   </div>
                 )}
@@ -882,7 +882,7 @@ export function CreateRuleForm({ userId, triggerSource, onSuccess, editRule }: C
               <div className="h-12 bg-neutral-950 border-t border-white/5 flex items-center justify-between px-5 text-neutral-500">
                 <Camera className="w-4 h-4" />
                 <div className="flex-1 max-w-[150px] h-7 bg-neutral-900 border border-white/5 rounded-full px-3 flex items-center justify-between text-[9px] text-neutral-600">
-                  <span>Message...</span>
+                  <span>Mensagem...</span>
                   <Smile className="w-3 h-3" />
                 </div>
                 <Mic className="w-4 h-4" />
@@ -909,12 +909,12 @@ export function CreateRuleForm({ userId, triggerSource, onSuccess, editRule }: C
 function incomingMsg(triggerSource: string, triggers: string[]): string {
   const primaryKw = triggers.length > 0 ? triggers[0] : null
   if (triggerSource === "comment") {
-    return primaryKw ? `Commented "${primaryKw}"` : "Commented on post"
+    return primaryKw ? `Comentou "${primaryKw}"` : "Comentou no post"
   }
   if (triggerSource === "story") {
-    return "Interacted with your Story"
+    return "Interagiu com seu Story"
   }
-  return primaryKw ? `DMed keyword "${primaryKw}"` : "Sent you a message"
+  return primaryKw ? `Enviou DM "${primaryKw}"` : "Enviou uma mensagem"
 }
 
 function hasDMContent(type: string, messageText: string, cardTitle: string, mediaUrl: string): boolean {
@@ -928,8 +928,8 @@ function StepHeader({ number, title, description }: { number: number; title: str
   return (
     <div className="border-b border-white/5 pb-4">
       <div className="flex items-center gap-2 mb-1.5">
-        <div className="px-2 py-0.5 rounded-md bg-[#ffe14d]/10 border border-[#ffe14d]/25 text-[9px] font-mono-ui font-bold uppercase tracking-wider text-[#ffe14d]">
-          Phase {number}
+        <div className="px-2 py-0.5 rounded-md bg-[#3b82f6]/10 border border-[#3b82f6]/25 text-[9px] font-mono-ui font-bold uppercase tracking-wider text-[#3b82f6]">
+          Etapa {number}
         </div>
       </div>
       <h3 className="text-xl font-bold text-white tracking-tight">{title}</h3>
@@ -948,7 +948,7 @@ function TextField({ value, onChange, placeholder }: { value: string; onChange: 
       value={value}
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
-      className="w-full h-11 bg-white/[0.02] border border-white/10 rounded-xl px-4 text-xs text-white placeholder:text-neutral-600 focus:outline-none focus:border-[#ffe14d]/50 focus:bg-white/[0.04] transition-all"
+      className="w-full h-11 bg-white/[0.02] border border-white/10 rounded-xl px-4 text-xs text-white placeholder:text-neutral-600 focus:outline-none focus:border-[#3b82f6]/50 focus:bg-white/[0.04] transition-all"
     />
   )
 }
@@ -967,15 +967,15 @@ function ToggleRow({
       type="button"
       onClick={onToggle}
       className={`w-full p-4 rounded-2xl border text-left flex items-center gap-3.5 transition-all duration-200 bg-white/[0.01] ${
-        on ? "border-[#ffe14d]/40 bg-[#ffe14d]/[0.03]" : "border-white/10 hover:border-white/20"
+        on ? "border-[#3b82f6]/40 bg-[#3b82f6]/[0.03]" : "border-white/10 hover:border-white/20"
       }`}
     >
-      <span className={on ? "text-[#ffe14d]" : "text-neutral-500"}>{icon}</span>
+      <span className={on ? "text-[#3b82f6]" : "text-neutral-500"}>{icon}</span>
       <span className="flex-1 min-w-0">
         <span className="block text-sm font-semibold text-white">{title}</span>
         <span className="block text-xs text-neutral-500 mt-0.5 leading-relaxed">{sub}</span>
       </span>
-      <span className={`w-10 h-5.5 rounded-full relative transition-colors shrink-0 ${on ? "bg-[#ffe14d]" : "bg-neutral-800"}`}>
+      <span className={`w-10 h-5.5 rounded-full relative transition-colors shrink-0 ${on ? "bg-[#3b82f6]" : "bg-neutral-800"}`}>
         <span className={`absolute top-0.5 w-4.5 h-4.5 rounded-full bg-black shadow-md transition-all ${on ? "left-[20px]" : "left-0.5"}`} />
       </span>
     </button>

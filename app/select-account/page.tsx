@@ -53,14 +53,14 @@ export default function SelectAccountPage() {
 
   if (accounts.length === 0) {
     return (
-      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
+      <div className="min-h-screen bg-[#09090b] flex items-center justify-center">
         <Loader2 className="w-8 h-8 text-white/20 animate-spin" />
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-[#09090b] flex items-center justify-center p-4">
       <div className="max-w-md w-full">
         <h2 className="text-3xl text-white text-center mb-2 font-bold">
           Escolha a conta
@@ -74,12 +74,12 @@ export default function SelectAccountPage() {
               key={account.id}
               onClick={() => handleSelect(account.id)}
               disabled={selecting}
-              className="w-full flex items-center gap-4 p-4 rounded-xl border border-white/10 bg-[#0b0b0a] hover:border-[#ffe14d]/50 hover:bg-white/5 transition-all disabled:opacity-50"
+              className="w-full flex items-center gap-4 p-4 rounded-xl border border-white/10 bg-[#111114] hover:border-[#3b82f6]/50 hover:bg-white/5 transition-all disabled:opacity-50"
             >
               {account.pic ? (
                 <img src={account.pic} alt={account.username} className="w-12 h-12 rounded-full object-cover" />
               ) : (
-                <div className="w-12 h-12 rounded-full bg-[#ffe14d]/10 flex items-center justify-center text-[#ffe14d] text-lg font-bold">
+                <div className="w-12 h-12 rounded-full bg-[#3b82f6]/10 flex items-center justify-center text-[#3b82f6] text-lg font-bold">
                   {account.username.charAt(0).toUpperCase()}
                 </div>
               )}
@@ -92,7 +92,7 @@ export default function SelectAccountPage() {
         </div>
         {selecting && (
           <div className="flex justify-center mt-6">
-            <Loader2 className="w-6 h-6 text-[#ffe14d] animate-spin" />
+            <Loader2 className="w-6 h-6 text-[#3b82f6] animate-spin" />
           </div>
         )}
       </div>
