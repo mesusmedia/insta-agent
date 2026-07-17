@@ -28,8 +28,7 @@ export function LandingPage() {
     // www.instagram.com/oauth/authorize is NOT a valid endpoint; it returns a
     // "page not available" error because www.instagram.com does not serve /oauth/authorize.
     // Meta's docs: https://developers.facebook.com/docs/instagram-platform/instagram-api-with-instagram-login
-window.location.href = `https://www.instagram.com/oauth/authorize?client_id=${process.env.NEXT_PUBLIC_INSTAGRAM_APP_ID}&redirect_uri=${process.env.NEXT_PUBLIC_INSTAGRAM_REDIRECT_URI}&response_type=code&scope=instagram_business_basic%2Cinstagram_business_manage_messages%2Cinstagram_business_manage_comments%2Cinstagram_business_content_publish%2Cinstagram_business_manage_insights&enable_fb_login=0&force_authentication=1`  }
-
+window.location.href = `https://www.facebook.com/v24.0/dialog/oauth?client_id=${process.env.NEXT_PUBLIC_INSTAGRAM_APP_ID}&redirect_uri=${process.env.NEXT_PUBLIC_INSTAGRAM_REDIRECT_URI}&response_type=code&scope=instagram_basic%2Cinstagram_content_publish%2Cinstagram_manage_messages%2Cpages_show_list%2Cpages_read_engagement%2Cbusiness_management`
   const handleTestLogin = () => {
     localStorage.setItem("ig_user_id", "9999999999")
     localStorage.setItem("ig_username", "test_creator")
