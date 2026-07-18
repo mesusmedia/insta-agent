@@ -19,11 +19,29 @@ import { toast } from "sonner"
    Step 3: SETTINGS — Name it & delivery options
    ============================================================ */
 
+export interface AutomationTemplate {
+  name: string
+  triggerSource: "comment" | "dm" | "story"
+  triggers: string[]
+  type: "text" | "card" | "media"
+  messageText: string
+  replyMode: "both" | "dm_only" | "public_only"
+  publicReplies: string[]
+  checkFollow: boolean
+  delaySeconds: number
+  typingIndicator: boolean
+  quickReplies: { id: string; title: string; payload?: string }[]
+  cardTitle?: string
+  cardSubtitle?: string
+  buttons?: ProButton[]
+}
+
 interface CreateRuleFormProps {
   userId: string
   triggerSource: "comment" | "dm" | "story"
   onSuccess: () => void
   editRule?: Automation | null
+  template?: AutomationTemplate | null
 }
 
 const STEPS = [
@@ -32,7 +50,7 @@ const STEPS = [
   { key: "settings", label: "Configuracoes Finais", sub: "Velocidade e restricoes" },
 ] as const
 
-export function CreateRuleForm({ userId, triggerSource, onSuccess, editRule }: CreateRuleFormProps) {
+export function CreateRuleForm({ userId, triggerSource, onSuccess, editRule, template }: CreateRuleFormProps) {
   const isEditing = !!editRule
   const [step, setStep] = useState(0)
 
@@ -124,6 +142,25 @@ export function CreateRuleForm({ userId, triggerSource, onSuccess, editRule }: C
       setHasSelectedReelOption(false)
     }
   }, [editRule])
+
+  /* Apply template preset */
+  useEffect(() => {
+    if (!template || isEditing) return
+    setName(template.name)
+    setTriggers(template.triggers)
+    setType(template.type)
+    setMessageText(template.messageText)
+    setReplyMode(template.replyMode)
+    setPublicReplies(template.publicReplies)
+    setCheckFollow(template.checkFollow)
+    setDelaySeconds(template.delaySeconds)
+    setTypingIndicator(template.typingIndicator)
+    setQuickReplies(template.quickReplies)
+    if (template.cardTitle) setCardTitle(template.cardTitle)
+    if (template.cardSubtitle) setCardSubtitle(template.cardSubtitle)
+    if (template.buttons) setButtons(template.buttons)
+    setHasSelectedReelOption(false)
+  }, [template, isEditing])
 
   /* Auto name */
   useEffect(() => {

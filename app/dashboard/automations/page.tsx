@@ -3,9 +3,102 @@
 import { useState, useCallback, useEffect } from "react"
 import { useInstagramSession } from "@/hooks/use-instagram-session"
 import { AutomationList } from "@/components/dashboard/AutomationList"
-import { CreateRuleForm } from "@/components/dashboard/CreateRuleForm"
-import { MessageCircle, Send, Sparkles, Zap, Plus, Brain, Loader2 } from "lucide-react"
+import { CreateRuleForm, type AutomationTemplate } from "@/components/dashboard/CreateRuleForm"
+import { MessageCircle, Send, Sparkles, Zap, Plus, Brain, Loader2, FileText, Tag, CalendarCheck, Gift, X } from "lucide-react"
 import type { Automation } from "@/lib/types"
+
+const TEMPLATES: { key: string; icon: React.ReactNode; label: string; desc: string; template: AutomationTemplate }[] = [
+    {
+        key: "lead-magnet",
+        icon: <FileText className="w-5 h-5" />,
+        label: "Isca Digital",
+        desc: "Comentou a palavra-chave → recebe ebook/PDF no DM + follow gate",
+        template: {
+            name: "Isca Digital — Ebook Grátis",
+            triggerSource: "comment",
+            triggers: ["EBOOK"],
+            type: "text",
+            messageText: "Aqui está seu material exclusivo! 📖\n\nAcesse pelo link: [COLE SEU LINK AQUI]\n\nQualquer dúvida, é só responder essa mensagem!",
+            replyMode: "both",
+            publicReplies: ["Enviamos no seu DM! 📩", "Confira sua caixa de entrada! ✉️", "Acabei de enviar pra você! 🎁"],
+            checkFollow: true,
+            delaySeconds: 3,
+            typingIndicator: true,
+            quickReplies: [
+                { id: "qr1", title: "Quero saber mais" },
+                { id: "qr2", title: "Agendar conversa" },
+            ],
+        },
+    },
+    {
+        key: "coupon",
+        icon: <Tag className="w-5 h-5" />,
+        label: "Cupom de Desconto",
+        desc: "Comentou a palavra-chave → recebe cupom exclusivo no DM",
+        template: {
+            name: "Cupom de Desconto Exclusivo",
+            triggerSource: "comment",
+            triggers: ["CUPOM"],
+            type: "text",
+            messageText: "Aqui está seu cupom exclusivo! 🎉\n\n🏷️ Código: [SEU_CUPOM]\n\nUse no link: [COLE SEU LINK AQUI]\n\nVálido por 48h!",
+            replyMode: "both",
+            publicReplies: ["Enviamos seu cupom no DM! 🎁", "Confira sua caixa de entrada! 💰", "Cupom enviado! Corre lá! 🏃"],
+            checkFollow: true,
+            delaySeconds: 3,
+            typingIndicator: true,
+            quickReplies: [
+                { id: "qr1", title: "Ver produtos" },
+                { id: "qr2", title: "Falar com atendente" },
+            ],
+        },
+    },
+    {
+        key: "booking",
+        icon: <CalendarCheck className="w-5 h-5" />,
+        label: "Link de Agendamento",
+        desc: "Comentou a palavra-chave → recebe link para agendar no DM",
+        template: {
+            name: "Agendamento Automático",
+            triggerSource: "comment",
+            triggers: ["AGENDAR"],
+            type: "card",
+            messageText: "",
+            cardTitle: "Agende seu horário",
+            cardSubtitle: "Escolha o melhor dia e horário para você. Atendimento rápido e sem fila!",
+            buttons: [
+                { id: "btn1", type: "web_url", title: "Agendar agora", url: "https://SEU-LINK-DE-AGENDAMENTO", payload: "" },
+            ],
+            replyMode: "both",
+            publicReplies: ["Enviamos o link no seu DM! 📅", "Confira sua caixa de entrada! ✅", "Link enviado! É só clicar e agendar 🗓️"],
+            checkFollow: false,
+            delaySeconds: 3,
+            typingIndicator: true,
+            quickReplies: [],
+        },
+    },
+    {
+        key: "dm-faq",
+        icon: <Gift className="w-5 h-5" />,
+        label: "FAQ Automático (DM)",
+        desc: "Quando alguém manda DM com palavra-chave → responde automaticamente",
+        template: {
+            name: "Resposta Automática — FAQ",
+            triggerSource: "dm",
+            triggers: ["PREÇO", "VALOR", "QUANTO"],
+            type: "text",
+            messageText: "Obrigado pelo interesse! 😊\n\nAqui estão nossas opções:\n\n📦 [Descreva seus planos/serviços aqui]\n\nQuer saber mais sobre algum em especial?",
+            replyMode: "dm_only",
+            publicReplies: [],
+            checkFollow: false,
+            delaySeconds: 5,
+            typingIndicator: true,
+            quickReplies: [
+                { id: "qr1", title: "Ver planos" },
+                { id: "qr2", title: "Falar com humano" },
+            ],
+        },
+    },
+]
 
 export default function AutomationsPage() {
     const { userId, isLoading: isSessionLoading } = useInstagramSession()
@@ -13,6 +106,8 @@ export default function AutomationsPage() {
     const [isLoading, setIsLoading] = useState(true)
     const [activeTab, setActiveTab] = useState<'comment' | 'dm' | 'story'>('comment')
     const [showCreateForm, setShowCreateForm] = useState(false)
+    const [showTemplatePicker, setShowTemplatePicker] = useState(false)
+    const [selectedTemplate, setSelectedTemplate] = useState<AutomationTemplate | null>(null)
     const [editRule, setEditRule] = useState<Automation | null>(null)
     const [aiEnabled, setAiEnabled] = useState(false)
     const [aiLoading, setAiLoading] = useState(true)
@@ -88,6 +183,8 @@ export default function AutomationsPage() {
 
     const handleEditRule = (rule: Automation) => {
         setEditRule(rule)
+        setSelectedTemplate(null)
+        setShowTemplatePicker(false)
         setShowCreateForm(true)
     }
 
@@ -145,17 +242,23 @@ export default function AutomationsPage() {
                         )}
                         <button
                             onClick={() => {
-                                if (showCreateForm) setEditRule(null)
-                                setShowCreateForm(!showCreateForm)
+                                if (showCreateForm || showTemplatePicker) {
+                                    setShowCreateForm(false)
+                                    setShowTemplatePicker(false)
+                                    setEditRule(null)
+                                    setSelectedTemplate(null)
+                                } else {
+                                    setShowTemplatePicker(true)
+                                }
                             }}
                             className={`flex items-center gap-2 h-9 px-5 rounded-full font-mono-ui text-[11px] font-bold uppercase tracking-widest transition-all active:scale-95 ${
-                                showCreateForm
+                                showCreateForm || showTemplatePicker
                                     ? 'border border-white/20 text-white hover:border-white/40'
                                     : 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white hover:brightness-110'
                             }`}
                         >
-                            <Plus className={`w-4 h-4 transition-transform duration-200 ${showCreateForm ? 'rotate-45' : ''}`} />
-                            {showCreateForm ? 'Fechar' : 'Nova Regra'}
+                            <Plus className={`w-4 h-4 transition-transform duration-200 ${showCreateForm || showTemplatePicker ? 'rotate-45' : ''}`} />
+                            {showCreateForm || showTemplatePicker ? 'Fechar' : 'Nova Regra'}
                         </button>
                     </div>
                 </div>
@@ -210,17 +313,62 @@ export default function AutomationsPage() {
                     ))}
                 </div>
 
+                {/* Template Picker */}
+                {showTemplatePicker && !showCreateForm && (
+                    <div className="rounded-2xl border border-white/10 bg-[#111114] p-6 md:p-8 animate-in fade-in slide-in-from-top-2 duration-300 space-y-5">
+                        <div>
+                            <h3 className="text-lg font-bold text-white">Escolha um modelo ou comece do zero</h3>
+                            <p className="text-xs text-neutral-500 mt-1">Templates prontos com textos, gatilhos e configurações pré-definidas. Personalize depois.</p>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            {TEMPLATES.map((t) => (
+                                <button
+                                    key={t.key}
+                                    onClick={() => {
+                                        setSelectedTemplate(t.template)
+                                        setActiveTab(t.template.triggerSource)
+                                        setShowTemplatePicker(false)
+                                        setShowCreateForm(true)
+                                    }}
+                                    className="flex items-start gap-4 p-4 rounded-xl border border-white/10 bg-white/[0.02] hover:border-blue-500/40 hover:bg-blue-500/[0.04] text-left transition-all group"
+                                >
+                                    <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 shrink-0 group-hover:bg-blue-500/20 transition-colors">
+                                        {t.icon}
+                                    </div>
+                                    <div className="min-w-0">
+                                        <p className="text-sm font-bold text-white">{t.label}</p>
+                                        <p className="text-[11px] text-neutral-500 mt-0.5 leading-relaxed">{t.desc}</p>
+                                    </div>
+                                </button>
+                            ))}
+                        </div>
+                        <button
+                            onClick={() => {
+                                setSelectedTemplate(null)
+                                setShowTemplatePicker(false)
+                                setShowCreateForm(true)
+                            }}
+                            className="w-full py-3 rounded-xl border border-dashed border-white/20 text-sm text-neutral-400 hover:text-white hover:border-white/40 transition-colors"
+                        >
+                            Começar do zero
+                        </button>
+                    </div>
+                )}
+
                 {/* Create Form (Collapsible) */}
                 {showCreateForm && (
                     <div className="rounded-2xl border border-white/10 bg-[#111114] p-6 md:p-8 animate-in fade-in slide-in-from-top-2 duration-300">
                         <CreateRuleForm
                             userId={userId}
-                            triggerSource={editRule ? editRule.trigger_source : activeTab}
+                            triggerSource={editRule ? editRule.trigger_source : selectedTemplate ? selectedTemplate.triggerSource : activeTab}
                             editRule={editRule}
+                            template={selectedTemplate}
                             onSuccess={() => {
                                 fetchAutomations()
                                 setShowCreateForm(false)
+                                setShowTemplatePicker(false)
                                 setEditRule(null)
+                                setSelectedTemplate(null)
                             }}
                         />
                     </div>
