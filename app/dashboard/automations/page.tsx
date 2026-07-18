@@ -92,7 +92,7 @@ export default function AutomationsPage() {
     }
 
     if (isSessionLoading) return <div className="h-screen flex items-center justify-center bg-black"><div className="w-6 h-6 border-2 border-white/20 border-t-white rounded-full animate-spin" /></div>
-    if (!userId) return <div className="h-screen flex items-center justify-center bg-black text-neutral-500">Please log in</div>
+    if (!userId) return <div className="h-screen flex items-center justify-center bg-black text-neutral-500">Faça login para continuar</div>
 
     const filteredAutomations = automations.filter(a => a.trigger_source === activeTab)
     const counts = {
@@ -102,7 +102,7 @@ export default function AutomationsPage() {
     }
 
     const tabs = [
-        { key: 'comment' as const, icon: <MessageCircle className="w-4 h-4" />, label: 'Comments', count: counts.comment },
+        { key: 'comment' as const, icon: <MessageCircle className="w-4 h-4" />, label: 'Comentários', count: counts.comment },
         { key: 'dm' as const, icon: <Send className="w-4 h-4" />, label: 'DMs', count: counts.dm },
         { key: 'story' as const, icon: <Sparkles className="w-4 h-4" />, label: 'Stories', count: counts.story },
     ]
@@ -113,8 +113,8 @@ export default function AutomationsPage() {
                 {/* Header */}
                 <div className="flex items-end justify-between gap-4 flex-wrap">
                     <div>
-                        <p className="font-mono-ui text-[10px] uppercase tracking-[0.3em] text-neutral-600 mb-2">Rules engine</p>
-                        <h1 className="font-serif-display text-4xl md:text-5xl text-white leading-none">Automations</h1>
+                        <p className="font-mono-ui text-[10px] uppercase tracking-[0.3em] text-neutral-600 mb-2">Motor de regras</p>
+                        <h1 className="font-serif-display text-4xl md:text-5xl text-white leading-none">Automações</h1>
                     </div>
                     <div className="flex items-center gap-2">
                         {/* AI Auto-Reply Toggle */}
@@ -125,7 +125,7 @@ export default function AutomationsPage() {
                                 <button
                                     onClick={() => setShowAiContext(!showAiContext)}
                                     className="w-9 h-9 flex items-center justify-center rounded-full border border-white/10 text-neutral-500 hover:text-white hover:border-white/30 transition-colors"
-                                    title="AI settings"
+                                    title="Configurações de IA"
                                 >
                                     <Brain className="w-4 h-4" />
                                 </button>
@@ -155,7 +155,7 @@ export default function AutomationsPage() {
                             }`}
                         >
                             <Plus className={`w-4 h-4 transition-transform duration-200 ${showCreateForm ? 'rotate-45' : ''}`} />
-                            {showCreateForm ? 'Close' : 'New Rule'}
+                            {showCreateForm ? 'Fechar' : 'Nova Regra'}
                         </button>
                     </div>
                 </div>
@@ -165,13 +165,13 @@ export default function AutomationsPage() {
                     <div className="rounded-2xl border border-[#3b82f6]/20 bg-[#3b82f6]/[0.04] p-5 animate-in fade-in slide-in-from-top-2 duration-200 space-y-3">
                         <div className="flex items-center gap-2">
                             <Brain className="w-4 h-4 text-[#3b82f6]" />
-                            <span className="text-sm font-semibold text-[#3b82f6]">AI Personality Context</span>
+                            <span className="text-sm font-semibold text-[#3b82f6]">Contexto de Personalidade da IA</span>
                         </div>
-                        <p className="text-xs text-neutral-500">Tell AI about your account — niche, products, tone, what to say/avoid. More context = more human replies.</p>
+                        <p className="text-xs text-neutral-500">Conte à IA sobre sua conta — nicho, serviços, tom de voz, o que dizer/evitar. Mais contexto = respostas mais humanas.</p>
                         <textarea
                             value={aiContext}
                             onChange={e => setAiContext(e.target.value)}
-                            placeholder={`e.g. This is a fitness coaching account. I sell online training programs (₹2999/mo). My tone is motivating but chill. If someone asks about pricing, tell them to DM for a free consultation. Never promise specific results.`}
+                            placeholder={`Ex: Esta é uma conta de consultório médico dermatológico. Oferecemos consultas presenciais e online. Tom profissional e acolhedor. Se perguntarem sobre preços, orientar a enviar DM para agendar. Nunca prometer resultados específicos.`}
                             rows={4}
                             className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-neutral-600 resize-none focus:outline-none focus:border-[#3b82f6]/50 transition-colors"
                         />
@@ -180,7 +180,7 @@ export default function AutomationsPage() {
                             disabled={aiContextSaving}
                             className="px-4 py-2 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-500 hover:brightness-110 text-white text-xs font-bold transition-all disabled:opacity-50"
                         >
-                            {aiContextSaving ? 'Saving...' : aiContextSaved ? 'Saved ✓' : 'Save Context'}
+                            {aiContextSaving ? 'Salvando...' : aiContextSaved ? 'Salvo ✓' : 'Salvar Contexto'}
                         </button>
                     </div>
                 )}

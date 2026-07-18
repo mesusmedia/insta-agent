@@ -20,8 +20,8 @@ export default function PublisherPage() {
     if (!userId) {
         return (
             <div className="flex flex-col items-center justify-center min-h-[50vh] text-center p-4">
-                <h2 className="text-xl font-semibold text-white mb-2">Login Required</h2>
-                <p className="text-neutral-400">Please connect your Instagram account to access this feature.</p>
+                <h2 className="text-xl font-semibold text-white mb-2">Login necessário</h2>
+                <p className="text-neutral-400">Conecte sua conta do Instagram para acessar este recurso.</p>
             </div>
         )
     }
@@ -30,10 +30,10 @@ export default function PublisherPage() {
         <div className="space-y-6 max-w-5xl mx-auto pb-20">
             <div className="flex flex-col gap-2">
                 <h1 className="font-serif-display text-4xl text-white w-fit">
-                    Reels Publisher
+                    Publicador de Reels
                 </h1>
                 <p className="text-neutral-400">
-                    Upload content and schedule automated rotation for consistent engagement.
+                    Faça upload de conteúdo e agende rotação automática para engajamento consistente.
                 </p>
             </div>
 
@@ -48,12 +48,12 @@ export default function PublisherPage() {
 
                         <Card className="mt-6 bg-[#111114] border-white/10">
                             <CardHeader>
-                                <CardTitle className="text-lg text-white">Automation Tips</CardTitle>
+                                <CardTitle className="text-lg text-white">Dicas de Automação</CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-3 text-sm text-neutral-400">
-                                <p>• <strong>Consistency is Key:</strong> Set a comfortable interval like 4-6 hours to keep your feed active.</p>
-                                <p>• <strong>Mix it Up:</strong> Add at least 5-10 clips to avoiding repetitive content.</p>
-                                <p>• <strong>Monitor:</strong> Check your Instagram insights to see which time windows perform best and adjust your schedule.</p>
+                                <p>• <strong>Consistência é tudo:</strong> Defina um intervalo confortável como 4-6 horas para manter seu feed ativo.</p>
+                                <p>• <strong>Varie o conteúdo:</strong> Adicione pelo menos 5-10 clipes para evitar repetição.</p>
+                                <p>• <strong>Monitore:</strong> Confira os insights do Instagram para ver quais horários performam melhor e ajuste seu agendamento.</p>
                             </CardContent>
                         </Card>
                     </div>
