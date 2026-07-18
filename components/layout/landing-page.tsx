@@ -117,7 +117,7 @@ export function LandingPage() {
           <div className="marquee-track flex whitespace-nowrap font-mono-ui text-xs uppercase tracking-[0.2em] text-neutral-600 gap-8 w-max">
             {Array.from({ length: 2 }).map((_, copy) => (
               <div key={copy} className="flex gap-8">
-                {["comentario → DM", "gatilhos por palavra-chave", "reacoes a stories", "resposta automatica com IA", "caixa de entrada", "ice breakers", "agendador de reels", "follow gate", "respostas rapidas", "anexos de midia", "respostas publicas + privadas"].map((t) => (
+                {["comentario → DM", "gatilhos por palavra-chave", "reacoes a stories", "resposta automatica com IA", "caixa de entrada", "agendador de reels", "follow gate", "respostas rapidas", "anexos de midia", "respostas publicas + privadas"].map((t) => (
                   <span key={t} className="flex items-center gap-8">
                     {t} <span className="text-blue-400">✦</span>
                   </span>
