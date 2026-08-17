@@ -95,31 +95,37 @@ async function exchangeAndSave(code: string, origin: string) {
     console.warn("[callback] step 3 failed:", e.message)
   }
 
-  // Step 4: Save to Supabase
+  // Step 4: Save to Supabase (non-blocking — login works even if this fails)
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-  if (!supabaseUrl || !supabaseKey) {
-    throw new Error("Missing Supabase env vars")
-  }
 
-  console.log("[callback] step 4: saving to supabase...")
-  const supabase = createClient(supabaseUrl, supabaseKey)
+  if (supabaseUrl && supabaseKey) {
+    try {
+      console.log("[callback] step 4: saving to supabase...", supabaseUrl.slice(0, 30))
+      const supabase = createClient(supabaseUrl, supabaseKey)
 
-  const { error: upsertError } = await supabase
-    .from("users")
-    .upsert({
-      id: loginUserId,
-      username,
-      access_token: accessToken,
-      token_expires_at: new Date(Date.now() + expiresIn * 1000).toISOString(),
-      updated_at: new Date().toISOString(),
-      business_account_id: businessAccountId,
-      page_id: businessAccountId,
-    }, { onConflict: "id" })
+      const { error: upsertError } = await supabase
+        .from("users")
+        .upsert({
+          id: loginUserId,
+          username,
+          access_token: accessToken,
+          token_expires_at: new Date(Date.now() + expiresIn * 1000).toISOString(),
+          updated_at: new Date().toISOString(),
+          business_account_id: businessAccountId,
+          page_id: businessAccountId,
+        }, { onConflict: "id" })
 
-  if (upsertError) {
-    console.error("[callback] step 4 supabase error:", JSON.stringify(upsertError))
-    throw upsertError
+      if (upsertError) {
+        console.error("[callback] step 4 supabase error:", JSON.stringify(upsertError))
+      } else {
+        console.log("[callback] step 4 OK")
+      }
+    } catch (e: any) {
+      console.error("[callback] step 4 supabase failed:", e.message)
+    }
+  } else {
+    console.warn("[callback] step 4 skipped: missing SUPABASE env vars")
   }
 
   console.log(`[callback] DONE: ${username} | id=${loginUserId}`)
