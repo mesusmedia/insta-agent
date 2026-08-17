@@ -1,16 +1,29 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { getSupabaseServerClient } from "@/lib/supabase-server"
+import { createClient } from "@supabase/supabase-js"
 
-async function exchangeAndSave(code: string) {
+const TIMEOUT_MS = 8000
+
+async function fetchWithTimeout(url: string, opts?: RequestInit) {
+  const controller = new AbortController()
+  const id = setTimeout(() => controller.abort(), TIMEOUT_MS)
+  try {
+    return await fetch(url, { ...opts, signal: controller.signal })
+  } finally {
+    clearTimeout(id)
+  }
+}
+
+async function exchangeAndSave(code: string, origin: string) {
   const clientId = process.env.INSTAGRAM_APP_ID
   const clientSecret = process.env.INSTAGRAM_APP_SECRET
-  const redirectUri = process.env.NEXT_PUBLIC_INSTAGRAM_REDIRECT_URI
+  const redirectUri = process.env.NEXT_PUBLIC_INSTAGRAM_REDIRECT_URI || `${origin}/api/instagram/callback`
 
-  if (!clientId || !clientSecret || !redirectUri) {
-    throw new Error("Missing Env Vars")
+  console.log("[callback] env check:", { clientId: !!clientId, clientSecret: !!clientSecret, redirectUri })
+
+  if (!clientId || !clientSecret) {
+    throw new Error("Missing INSTAGRAM_APP_ID or INSTAGRAM_APP_SECRET")
   }
 
-  // 1. Exchange code via Instagram API
   const tokenParams = new URLSearchParams({
     client_id: clientId,
     client_secret: clientSecret,
@@ -19,7 +32,7 @@ async function exchangeAndSave(code: string) {
     code,
   })
 
-  const tokenRes = await fetch("https://api.instagram.com/oauth/access_token", {
+  const tokenRes = await fetchWithTimeout("https://api.instagram.com/oauth/access_token", {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: tokenParams.toString(),
@@ -29,35 +42,52 @@ async function exchangeAndSave(code: string) {
 
   if (!tokenRes.ok || tokenData.error_message) {
     console.error("[callback] Token Error:", JSON.stringify(tokenData))
-    throw new Error(tokenData.error_message || "Token exchange failed")
+    throw new Error(tokenData.error_message || `Token exchange failed (${tokenRes.status})`)
   }
 
   const shortToken = tokenData.access_token
   const loginUserId = tokenData.user_id.toString()
+  console.log("[callback] got short token for user:", loginUserId)
 
-  // 2. Long-lived token (60 days)
-  const longUrl = `https://graph.instagram.com/access_token?grant_type=ig_exchange_token&client_secret=${clientSecret}&access_token=${shortToken}`
-  const longRes = await fetch(longUrl)
-  const longData = await longRes.json()
-  const accessToken = longData.access_token || shortToken
-  const expiresIn = longData.expires_in || 5184000
+  let accessToken = shortToken
+  let expiresIn = 5184000
 
-  // 3. Get username
+  try {
+    const longRes = await fetchWithTimeout(
+      `https://graph.instagram.com/access_token?grant_type=ig_exchange_token&client_secret=${clientSecret}&access_token=${shortToken}`
+    )
+    const longData = await longRes.json()
+    if (longData.access_token) {
+      accessToken = longData.access_token
+      expiresIn = longData.expires_in || 5184000
+    }
+  } catch (e: any) {
+    console.warn("[callback] long-lived token failed, using short token:", e.message)
+  }
+
   let username = `user_${loginUserId}`
   let businessAccountId = loginUserId
 
   try {
-    const meRes = await fetch(`https://graph.instagram.com/v24.0/me?fields=user_id,username&access_token=${accessToken}`)
+    const meRes = await fetchWithTimeout(
+      `https://graph.instagram.com/v24.0/me?fields=user_id,username&access_token=${accessToken}`
+    )
     const meData = await meRes.json()
     console.log("[callback] /me:", JSON.stringify(meData))
     if (meData.username) username = meData.username
     if (meData.user_id) businessAccountId = meData.user_id.toString()
-  } catch (e) {
-    console.error("[callback] /me failed:", e)
+  } catch (e: any) {
+    console.warn("[callback] /me failed:", e.message)
   }
 
-  // 4. Save to Supabase
-  const supabase = await getSupabaseServerClient()
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  if (!supabaseUrl || !supabaseKey) {
+    throw new Error("Missing Supabase env vars")
+  }
+
+  // ponytail: direct client avoids cookies() issues in route handlers
+  const supabase = createClient(supabaseUrl, supabaseKey)
 
   const { error: upsertError } = await supabase
     .from("users")
@@ -71,7 +101,10 @@ async function exchangeAndSave(code: string) {
       page_id: businessAccountId,
     }, { onConflict: "id" })
 
-  if (upsertError) throw upsertError
+  if (upsertError) {
+    console.error("[callback] Supabase upsert error:", JSON.stringify(upsertError))
+    throw upsertError
+  }
 
   console.log(`[callback] Saved: ${username} | id=${loginUserId}`)
   return { username, userId: loginUserId, expiresIn }
@@ -81,36 +114,40 @@ export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams
   const code = searchParams.get("code")
   const error = searchParams.get("error")
+  const origin = request.nextUrl.origin
+
+  console.log("[callback] GET hit:", { hasCode: !!code, error, origin })
 
   if (error) {
-    const redirectUrl = new URL("/", request.url)
-    redirectUrl.searchParams.set("error", error)
-    return NextResponse.redirect(redirectUrl)
+    return NextResponse.redirect(new URL(`/?error=${encodeURIComponent(error)}`, origin))
   }
 
-  if (code) {
-    try {
-      const result = await exchangeAndSave(code)
-      const response = NextResponse.redirect(new URL("/dashboard", request.url))
+  if (!code) {
+    return NextResponse.json({ error: "Missing code parameter" }, { status: 400 })
+  }
 
-      const cookieOpts = {
-        path: "/",
-        maxAge: result.expiresIn,
-        sameSite: "lax" as const,
-        secure: process.env.NODE_ENV === "production",
-      }
-      response.cookies.set("insta_session", JSON.stringify({ username: result.username, userId: result.userId }), cookieOpts)
-      response.cookies.set("ig_user_id", result.userId, cookieOpts)
-      response.cookies.set("ig_username", result.username, cookieOpts)
+  try {
+    const result = await exchangeAndSave(code, origin)
 
-      return response
-    } catch (err: any) {
-      console.error("[callback] GET failed:", err.message)
-      const redirectUrl = new URL("/", request.url)
-      redirectUrl.searchParams.set("error", err.message)
-      return NextResponse.redirect(redirectUrl)
+    // Pass session via query params as fallback (cookies may not survive redirect)
+    const dashUrl = new URL("/dashboard", origin)
+    dashUrl.searchParams.set("ig_user_id", result.userId)
+    dashUrl.searchParams.set("ig_username", result.username)
+    const response = NextResponse.redirect(dashUrl)
+
+    const cookieOpts = {
+      path: "/",
+      maxAge: result.expiresIn,
+      sameSite: "lax" as const,
+      secure: true,
+      httpOnly: false,
     }
-  }
+    response.cookies.set("ig_user_id", result.userId, cookieOpts)
+    response.cookies.set("ig_username", result.username, cookieOpts)
 
-  return NextResponse.json({ error: "Invalid callback" }, { status: 400 })
+    return response
+  } catch (err: any) {
+    console.error("[callback] FAILED:", err.message, err.stack)
+    return NextResponse.redirect(new URL(`/?error=${encodeURIComponent(err.message)}`, origin))
+  }
 }

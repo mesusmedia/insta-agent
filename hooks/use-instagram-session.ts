@@ -15,17 +15,36 @@ export function useInstagramSession() {
     const router = useRouter()
 
     useEffect(() => {
-        // Check cookies first (set by server callback), then localStorage
+        // 1. Check query params (set by callback redirect as fallback)
+        const params = new URLSearchParams(window.location.search)
+        const paramId = params.get("ig_user_id")
+        const paramName = params.get("ig_username")
+
+        if (paramId && paramName) {
+            localStorage.setItem("ig_user_id", paramId)
+            localStorage.setItem("ig_username", paramName)
+            setUserId(paramId)
+            setUsername(paramName)
+            // Clean URL
+            const url = new URL(window.location.href)
+            url.searchParams.delete("ig_user_id")
+            url.searchParams.delete("ig_username")
+            window.history.replaceState({}, "", url.pathname)
+            setIsLoading(false)
+            return
+        }
+
+        // 2. Check cookies
         const cookieId = getCookie("ig_user_id")
         const cookieName = getCookie("ig_username")
 
         if (cookieId && cookieName) {
-            // Sync cookies to localStorage for persistence
             localStorage.setItem("ig_user_id", cookieId)
             localStorage.setItem("ig_username", cookieName)
             setUserId(cookieId)
             setUsername(cookieName)
         } else {
+            // 3. Fallback to localStorage
             const savedId = localStorage.getItem("ig_user_id")
             const savedName = localStorage.getItem("ig_username")
             if (savedId && savedName) {
