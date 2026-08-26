@@ -34,7 +34,13 @@ export async function GET(request: NextRequest) {
     )
     const meData = await meRes.json()
 
+    const isSubscribed = Array.isArray(data?.data) && data.data.length > 0
+    const fields = data?.data?.[0]?.subscribed_fields || []
+
     return NextResponse.json({
+      ok: isSubscribed,
+      subscribed: isSubscribed,
+      fields,
       db_user: {
         id: userId,
         username: user.username,
@@ -62,7 +68,7 @@ export async function POST(request: NextRequest) {
 
     // Try subscribing via graph.instagram.com (Instagram Login flow)
     const res = await fetch(
-      `${GRAPH}/me/subscribed_apps?subscribed_fields=comments,messages,mentions&access_token=${encodeURIComponent(user.access_token)}`,
+      `${GRAPH}/me/subscribed_apps?subscribed_fields=comments,messages&access_token=${encodeURIComponent(user.access_token)}`,
       { method: "POST" },
     )
     const data = await res.json()

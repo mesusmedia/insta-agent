@@ -155,7 +155,7 @@ export function sleep(ms: number) {
 export async function subscribeToWebhooks(token: string): Promise<{ ok: boolean; error?: any; raw?: any }> {
   try {
     const res = await fetch(
-      `${GRAPH}/me/subscribed_apps?subscribed_fields=comments,messages,mentions&access_token=${encodeURIComponent(token)}`,
+      `${GRAPH}/me/subscribed_apps?subscribed_fields=comments,messages&access_token=${encodeURIComponent(token)}`,
       { method: "POST" },
     )
     const json = await res.json()

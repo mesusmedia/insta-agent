@@ -117,7 +117,8 @@ export default function AutomationsPage() {
     const [aiContextSaving, setAiContextSaving] = useState(false)
     const [aiContextSaved, setAiContextSaved] = useState(false)
     const [subscribing, setSubscribing] = useState(false)
-    const [subscribeStatus, setSubscribeStatus] = useState<"idle" | "ok" | "error">("idle")
+    const [subscribeStatus, setSubscribeStatus] = useState<"idle" | "ok" | "error" | "checking">("checking")
+    const [subscribeFields, setSubscribeFields] = useState<string[]>([])
 
     useEffect(() => {
         if (!userId) return
@@ -129,6 +130,18 @@ export default function AutomationsPage() {
             })
             .catch(() => {})
             .finally(() => setAiLoading(false))
+    }, [userId])
+
+    useEffect(() => {
+        if (!userId) return
+        setSubscribeStatus("checking")
+        fetch(`/api/instagram/subscribe?userId=${userId}`)
+            .then(res => res.json())
+            .then(data => {
+                setSubscribeStatus(data.subscribed ? "ok" : "error")
+                setSubscribeFields(data.fields || [])
+            })
+            .catch(() => setSubscribeStatus("error"))
     }, [userId])
 
     const handleSaveAiContext = async () => {
@@ -149,7 +162,6 @@ export default function AutomationsPage() {
     const handleSubscribeWebhook = async () => {
         if (subscribing) return
         setSubscribing(true)
-        setSubscribeStatus("idle")
         try {
             const res = await fetch("/api/instagram/subscribe", {
                 method: "POST",
@@ -157,19 +169,22 @@ export default function AutomationsPage() {
                 body: JSON.stringify({ userId }),
             })
             const data = await res.json()
-            if (res.ok) {
+            if (res.ok && data.ok) {
                 setSubscribeStatus("ok")
+                setSubscribeFields(["comments", "messages"])
             } else {
                 console.error("[webhook subscribe] error:", data)
-                const msg = data?.error?.message || data?.error || "Erro desconhecido"
-                alert(`Erro ao ativar webhook:\n${msg}\n\nCódigo: ${data?.error?.code || res.status}`)
+                const errCode = data?.error?.code
+                const errMsg = data?.error?.message || data?.error || "Erro desconhecido"
+                const fullMsg = errCode ? `[${errCode}] ${errMsg}` : errMsg
+                alert(`Erro ao ativar webhook:\n${fullMsg}`)
                 setSubscribeStatus("error")
+                setSubscribeFields([])
             }
         } catch (e) {
             setSubscribeStatus("error")
         } finally {
             setSubscribing(false)
-            setTimeout(() => setSubscribeStatus("idle"), 4000)
         }
     }
 
@@ -246,18 +261,24 @@ export default function AutomationsPage() {
                         {/* Webhook Reconnect */}
                         <button
                             onClick={handleSubscribeWebhook}
-                            disabled={subscribing}
-                            title="Reativar recebimento de eventos do Instagram (webhook)"
+                            disabled={subscribing || subscribeStatus === "checking"}
+                            title={
+                                subscribeStatus === "ok"
+                                    ? `Webhook ativo — campos: ${subscribeFields.join(", ") || "?"}`
+                                    : subscribeStatus === "error"
+                                    ? "Webhook inativo — clique para reativar"
+                                    : "Verificando status do webhook..."
+                            }
                             className={`flex items-center gap-1.5 h-9 px-3 rounded-full font-mono-ui text-[11px] font-bold uppercase tracking-widest transition-colors border ${
                                 subscribeStatus === "ok"
                                     ? "border-green-500/40 bg-green-500/10 text-green-400"
                                     : subscribeStatus === "error"
-                                    ? "border-red-500/40 bg-red-500/10 text-red-400"
-                                    : "border-white/10 text-neutral-500 hover:text-white hover:border-white/30"
+                                    ? "border-red-500/40 bg-red-500/10 text-red-400 hover:bg-red-500/20 cursor-pointer"
+                                    : "border-white/10 text-neutral-500"
                             }`}
                         >
-                            {subscribing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Wifi className="w-3.5 h-3.5" />}
-                            {subscribing ? "..." : subscribeStatus === "ok" ? "Ativo!" : subscribeStatus === "error" ? "Erro" : "Webhook"}
+                            {(subscribing || subscribeStatus === "checking") ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Wifi className="w-3.5 h-3.5" />}
+                            {subscribing ? "..." : subscribeStatus === "ok" ? "Webhook OK" : subscribeStatus === "error" ? "Webhook ERRO" : "..."}
                         </button>
 
                         {/* AI Auto-Reply Toggle */}
@@ -308,6 +329,26 @@ export default function AutomationsPage() {
                         </button>
                     </div>
                 </div>
+
+                {/* Webhook error banner */}
+                {subscribeStatus === "error" && (
+                    <div className="rounded-xl border border-red-500/30 bg-red-500/[0.06] px-4 py-3 flex items-center justify-between gap-3 animate-in fade-in duration-300">
+                        <div className="flex items-center gap-2.5">
+                            <Wifi className="w-4 h-4 text-red-400 shrink-0" />
+                            <p className="text-sm text-red-300">
+                                <span className="font-semibold">Webhook desconectado.</span>{" "}
+                                As automações não vão disparar. Clique em <span className="font-semibold">Webhook ERRO</span> para reconectar.
+                            </p>
+                        </div>
+                        <button
+                            onClick={handleSubscribeWebhook}
+                            disabled={subscribing}
+                            className="shrink-0 text-xs font-bold text-red-400 hover:text-red-300 underline transition-colors"
+                        >
+                            {subscribing ? "..." : "Reconectar"}
+                        </button>
+                    </div>
+                )}
 
                 {/* AI Context Panel */}
                 {showAiContext && (
