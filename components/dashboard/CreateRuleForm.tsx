@@ -85,19 +85,26 @@ export function CreateRuleForm({ userId, triggerSource, onSuccess, editRule, tem
   const [saving, setSaving] = useState(false)
   const [reels, setReels] = useState<any[]>([])
   const [loadingReels, setLoadingReels] = useState(false)
+  const [mediaError, setMediaError] = useState<string | null>(null)
 
   useEffect(() => {
     if (!userId) return
     let cancelled = false
     setLoadingReels(true)
+    setMediaError(null)
     fetch(`/api/instagram/media?userId=${userId}`)
       .then((r) => r.json())
       .then((j) => {
         if (cancelled) return
+        if (j.error) {
+          setMediaError(j.error)
+          setReels([])
+          return
+        }
         const list = j.data && Array.isArray(j.data) ? j.data : Array.isArray(j) ? j : []
         setReels(list)
       })
-      .catch(() => {})
+      .catch(() => setMediaError("Erro ao carregar posts. Tente novamente."))
       .finally(() => !cancelled && setLoadingReels(false))
     return () => { cancelled = true }
   }, [userId])
@@ -284,10 +291,14 @@ export function CreateRuleForm({ userId, triggerSource, onSuccess, editRule, tem
         toast.success(isEditing ? "Automacao atualizada" : "Automacao ativada")
         onSuccess()
       } else {
-        toast.error("Erro ao salvar — tente novamente")
+        const errData = await res.json().catch(() => ({}))
+        const msg = errData?.error || `Erro ${res.status} ao salvar`
+        toast.error(msg)
+        console.error("[automations save]", res.status, errData)
       }
-    } catch {
+    } catch (err) {
       toast.error("Erro de conexao")
+      console.error("[automations save] network error", err)
     } finally {
       setSaving(false)
     }
@@ -387,6 +398,11 @@ export function CreateRuleForm({ userId, triggerSource, onSuccess, editRule, tem
                     <div className="p-8 flex flex-col items-center justify-center gap-3 border border-white/5 rounded-2xl bg-white/[0.01]">
                       <Loader2 className="w-6 h-6 animate-spin text-[#3b82f6]" />
                       <span className="text-xs text-neutral-500 font-mono-ui">Carregando feed do Instagram...</span>
+                    </div>
+                  ) : mediaError ? (
+                    <div className="p-6 flex flex-col items-center justify-center gap-2 border border-red-500/20 rounded-2xl bg-red-500/[0.04] text-center">
+                      <span className="text-sm text-red-400 font-semibold">Erro ao carregar posts</span>
+                      <span className="text-xs text-neutral-500">{mediaError.includes("Session Expired") || mediaError.includes("not connected") ? "Token do Instagram expirado — faça logout e conecte novamente." : mediaError}</span>
                     </div>
                   ) : (
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-[300px] overflow-y-auto pr-1">

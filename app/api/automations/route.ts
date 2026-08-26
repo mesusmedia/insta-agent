@@ -16,7 +16,11 @@ export async function GET(request: NextRequest) {
       .eq("user_id", userId)
       .order("created_at", { ascending: false })
 
-    if (error) throw error
+    if (error) {
+      console.error("[v0] Automations GET db error:", JSON.stringify(error))
+      const msg = (error as any)?.message || "Failed to fetch"
+      return NextResponse.json({ error: msg }, { status: 500 })
+    }
     return NextResponse.json(data)
   } catch (error) {
     console.error("[v0] Automations GET error:", error)
@@ -61,7 +65,11 @@ export async function POST(request: NextRequest) {
       .select()
       .single()
 
-    if (error) throw error
+    if (error) {
+      console.error("[v0] Automations POST db error:", JSON.stringify(error))
+      const msg = (error as any)?.message || "Failed to create"
+      return NextResponse.json({ error: msg }, { status: 500 })
+    }
     return NextResponse.json(data)
   } catch (error) {
     console.error("[v0] Automations POST error:", error)
