@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
+import { subscribeToWebhooks } from "@/lib/instagram-api"
 
 export const runtime = "nodejs"
 
@@ -120,6 +121,19 @@ async function exchangeAndSave(code: string, origin: string) {
         console.error("[callback] step 4 supabase error:", JSON.stringify(upsertError))
       } else {
         console.log("[callback] step 4 OK")
+      }
+
+      // Step 5: Subscribe to Instagram webhooks for this account
+      try {
+        console.log("[callback] step 5: subscribing to webhooks...")
+        const subResult = await subscribeToWebhooks(accessToken)
+        if (subResult.ok) {
+          console.log("[callback] step 5 OK — webhook subscription active")
+        } else {
+          console.warn("[callback] step 5 webhook subscription failed:", subResult.error)
+        }
+      } catch (e: any) {
+        console.warn("[callback] step 5 failed (non-blocking):", e.message)
       }
     } catch (e: any) {
       console.error("[callback] step 4 supabase failed:", e.message)

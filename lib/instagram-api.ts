@@ -149,3 +149,24 @@ export async function verifyIdOwnership(token: string, id: string): Promise<bool
 export function sleep(ms: number) {
   return new Promise((r) => setTimeout(r, Math.min(ms, 8000)))
 }
+
+// Subscribe this Instagram account to receive webhook events (comments, DMs, etc.)
+// Must be called after login and whenever the token is refreshed.
+export async function subscribeToWebhooks(token: string): Promise<{ ok: boolean; error?: any }> {
+  try {
+    const res = await fetch(
+      `${GRAPH}/me/subscribed_apps?subscribed_fields=comments,messages,mentions,story_insights&access_token=${encodeURIComponent(token)}`,
+      { method: "POST" },
+    )
+    const json = await res.json()
+    if (json.error) {
+      console.error("[ig-api] subscribeToWebhooks failed:", JSON.stringify(json.error))
+      return { ok: false, error: json.error }
+    }
+    console.log("[ig-api] subscribeToWebhooks OK:", JSON.stringify(json))
+    return { ok: true }
+  } catch (e) {
+    console.error("[ig-api] subscribeToWebhooks network error:", e)
+    return { ok: false, error: e }
+  }
+}

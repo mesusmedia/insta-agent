@@ -4,7 +4,7 @@ import { useState, useCallback, useEffect } from "react"
 import { useInstagramSession } from "@/hooks/use-instagram-session"
 import { AutomationList } from "@/components/dashboard/AutomationList"
 import { CreateRuleForm, type AutomationTemplate } from "@/components/dashboard/CreateRuleForm"
-import { MessageCircle, Send, Sparkles, Zap, Plus, Brain, Loader2, FileText, Tag, CalendarCheck, Gift, X } from "lucide-react"
+import { MessageCircle, Send, Sparkles, Zap, Plus, Brain, Loader2, FileText, Tag, CalendarCheck, Gift, X, Wifi } from "lucide-react"
 import type { Automation } from "@/lib/types"
 
 const TEMPLATES: { key: string; icon: React.ReactNode; label: string; desc: string; template: AutomationTemplate }[] = [
@@ -116,6 +116,8 @@ export default function AutomationsPage() {
     const [aiContext, setAiContext] = useState("")
     const [aiContextSaving, setAiContextSaving] = useState(false)
     const [aiContextSaved, setAiContextSaved] = useState(false)
+    const [subscribing, setSubscribing] = useState(false)
+    const [subscribeStatus, setSubscribeStatus] = useState<"idle" | "ok" | "error">("idle")
 
     useEffect(() => {
         if (!userId) return
@@ -142,6 +144,25 @@ export default function AutomationsPage() {
             setTimeout(() => setAiContextSaved(false), 2000)
         } catch {}
         setAiContextSaving(false)
+    }
+
+    const handleSubscribeWebhook = async () => {
+        if (subscribing) return
+        setSubscribing(true)
+        setSubscribeStatus("idle")
+        try {
+            const res = await fetch("/api/instagram/subscribe", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ userId }),
+            })
+            setSubscribeStatus(res.ok ? "ok" : "error")
+        } catch {
+            setSubscribeStatus("error")
+        } finally {
+            setSubscribing(false)
+            setTimeout(() => setSubscribeStatus("idle"), 4000)
+        }
     }
 
     const handleToggleAI = async () => {
@@ -214,6 +235,23 @@ export default function AutomationsPage() {
                         <h1 className="font-serif-display text-4xl md:text-5xl text-white leading-none">Automações</h1>
                     </div>
                     <div className="flex items-center gap-2">
+                        {/* Webhook Reconnect */}
+                        <button
+                            onClick={handleSubscribeWebhook}
+                            disabled={subscribing}
+                            title="Reativar recebimento de eventos do Instagram (webhook)"
+                            className={`flex items-center gap-1.5 h-9 px-3 rounded-full font-mono-ui text-[11px] font-bold uppercase tracking-widest transition-colors border ${
+                                subscribeStatus === "ok"
+                                    ? "border-green-500/40 bg-green-500/10 text-green-400"
+                                    : subscribeStatus === "error"
+                                    ? "border-red-500/40 bg-red-500/10 text-red-400"
+                                    : "border-white/10 text-neutral-500 hover:text-white hover:border-white/30"
+                            }`}
+                        >
+                            {subscribing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Wifi className="w-3.5 h-3.5" />}
+                            {subscribing ? "..." : subscribeStatus === "ok" ? "Ativo!" : subscribeStatus === "error" ? "Erro" : "Webhook"}
+                        </button>
+
                         {/* AI Auto-Reply Toggle */}
                         {aiLoading ? (
                             <Loader2 className="w-4 h-4 text-neutral-500 animate-spin" />
