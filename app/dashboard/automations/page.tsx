@@ -156,8 +156,16 @@ export default function AutomationsPage() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ userId }),
             })
-            setSubscribeStatus(res.ok ? "ok" : "error")
-        } catch {
+            const data = await res.json()
+            if (res.ok) {
+                setSubscribeStatus("ok")
+            } else {
+                console.error("[webhook subscribe] error:", data)
+                const msg = data?.error?.message || data?.error || "Erro desconhecido"
+                alert(`Erro ao ativar webhook:\n${msg}\n\nCódigo: ${data?.error?.code || res.status}`)
+                setSubscribeStatus("error")
+            }
+        } catch (e) {
             setSubscribeStatus("error")
         } finally {
             setSubscribing(false)
