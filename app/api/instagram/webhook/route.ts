@@ -202,7 +202,10 @@ export async function POST(request: NextRequest) {
 
           if (senderId === webhookId || senderId === user.business_account_id || senderId === user.page_id) continue
 
-          const commentAutomations = automations.filter((a: any) => a.trigger_source === "comment")
+          // treat missing/null trigger_source as "comment" (legacy rows)
+          const commentAutomations = automations.filter(
+            (a: any) => !a.trigger_source || a.trigger_source === "comment",
+          )
 
           // Priority: specific post reply-all → specific post keyword → global keyword
           let match = commentAutomations.find(
@@ -265,6 +268,8 @@ export async function POST(request: NextRequest) {
           if (event.read || event.delivery || event.message?.is_echo || senderId === recipientId) continue
 
           const storyAutomations = automations.filter((a: any) => a.trigger_source === "story")
+          // Note: legacy rows without trigger_source are intentionally not included here
+          // (they default to "comment" behaviour)
           if (storyAutomations.length === 0) continue
 
           let match = null
