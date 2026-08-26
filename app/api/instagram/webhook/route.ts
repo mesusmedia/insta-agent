@@ -253,8 +253,9 @@ export async function POST(request: NextRequest) {
 
           if (replyMode !== "public_only") {
             if (content.check_follow === true) {
-              // Follow gate: ask the user to follow first
-              await sendCardDM(user.access_token, { comment_id: commentId }, {
+              // Follow gate: use senderId (not comment_id) because card/template messages
+              // require a real user ID recipient — comment_id only works for plain text
+              await sendCardDM(user.access_token, { id: senderId }, {
                 title: "🔒 Conteúdo Exclusivo para Seguidores",
                 subtitle: `Siga @${user.username} para receber o conteúdo exclusivo!`,
                 buttons: [
