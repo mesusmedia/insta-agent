@@ -112,7 +112,11 @@ function responsePreviewText(content: any): string {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    if (!body.entry) return NextResponse.json({ ok: true })
+    console.log("[webhook] POST received:", JSON.stringify(body).slice(0, 500))
+    if (!body.entry) {
+      console.log("[webhook] No entry in body, returning ok")
+      return NextResponse.json({ ok: true })
+    }
     const supabase = await getSupabaseServerClient()
 
     for (const entry of body.entry) {
@@ -248,12 +252,24 @@ export async function POST(request: NextRequest) {
           }
 
           if (replyMode !== "public_only") {
-            await sendAutomationResponse(
-              user.access_token,
-              { comment_id: commentId },
-              content,
-              { skipTyping: true },
-            )
+            if (content.check_follow === true) {
+              // Follow gate: ask the user to follow first
+              await sendCardDM(user.access_token, { comment_id: commentId }, {
+                title: "🔒 Conteúdo Exclusivo para Seguidores",
+                subtitle: `Siga @${user.username} para receber o conteúdo exclusivo!`,
+                buttons: [
+                  { type: "web_url", title: "Seguir agora", url: `https://instagram.com/${user.username}` },
+                  { type: "postback", title: "Já sigo! ✅", payload: `UNLOCK_CONTENT_${match.id}` },
+                ],
+              })
+            } else {
+              await sendAutomationResponse(
+                user.access_token,
+                { comment_id: commentId },
+                content,
+                { skipTyping: true },
+              )
+            }
           }
         }
       }

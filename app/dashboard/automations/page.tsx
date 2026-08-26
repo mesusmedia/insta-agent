@@ -119,6 +119,8 @@ export default function AutomationsPage() {
     const [subscribing, setSubscribing] = useState(false)
     const [subscribeStatus, setSubscribeStatus] = useState<"idle" | "ok" | "error" | "checking">("checking")
     const [subscribeFields, setSubscribeFields] = useState<string[]>([])
+    const [testingWebhook, setTestingWebhook] = useState(false)
+    const [testResult, setTestResult] = useState<string | null>(null)
 
     useEffect(() => {
         if (!userId) return
